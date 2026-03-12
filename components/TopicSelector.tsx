@@ -20,6 +20,23 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({ onSelectTopic, onStart, i
   const langKey = i18n.language.startsWith('tr') ? 'tr' : 'en';
   const topicsData = SPEAKING_TOPICS[langKey];
 
+  const themeEmojis: Record<string, string> = {
+    'School Life': '🏫', 'Okul Hayatı': '🏫',
+    'Family Life': '👨‍👩‍👧', 'Aile Hayatı': '👨‍👩‍👧',
+    'Universe & Future': '🚀', 'Evren ve Gelecek': '🚀',
+    'City & Country': '🏙️', 'Şehir ve Ülke': '🏙️',
+    'Sports & Hobbies': '⚽', 'Spor ve Hobiler': '⚽',
+    'Technology': '💻', 'Teknoloji': '💻',
+    'Environment': '🌿', 'Çevre': '🌿',
+    'Health & Lifestyle': '💪', 'Sağlık ve Yaşam': '💪',
+    'Arts & Culture': '🎨', 'Sanat ve Kültür': '🎨',
+    'Travel': '✈️', 'Seyahat': '✈️',
+    'Food & Drink': '🍕', 'Yemek': '🍕',
+    'Work & Career': '💼', 'Kariyer': '💼',
+    'Social Issues': '🤝', 'Sosyal Konular': '🤝',
+    'Media & Entertainment': '🎬', 'Medya': '🎬',
+  };
+
   const toggleTopic = (topic: string) => {
     setSelectedTopics(prev => {
       const next = prev.includes(topic) ? prev.filter(t => t !== topic) : [...prev, topic];
@@ -89,7 +106,7 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({ onSelectTopic, onStart, i
                 onClick={() => toggleTheme(theme)}
                 className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors text-left"
               >
-                <span className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{theme}</span>
+                <span className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{themeEmojis[theme] ? `${themeEmojis[theme]} ` : ''}{theme}</span>
                 <svg className={`w-4 h-4 text-slate-400 transition-transform ${expandedThemes.includes(theme) || searchQuery ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>

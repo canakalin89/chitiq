@@ -23,6 +23,37 @@ const EvaluationResult: React.FC<EvaluationResultProps> = ({
   const { t, i18n } = useTranslation();
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [displayScore, setDisplayScore] = useState(0);
+  const [confetti, setConfetti] = useState<{id:number,x:number,color:string,delay:number,size:number}[]>([]);
+
+  useEffect(() => {
+    let frame: number;
+    const start = performance.now();
+    const duration = 1200;
+    const animate = (now: number) => {
+      const t = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setDisplayScore(Math.round(eased * data.overallScore));
+      if (t < 1) frame = requestAnimationFrame(animate);
+    };
+    frame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frame);
+  }, [data.overallScore]);
+
+  useEffect(() => {
+    if (data.overallScore >= 80) {
+      const colors = ['#6366f1','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#f97316'];
+      setConfetti(Array.from({length: 50}, (_,i) => ({
+        id: i,
+        x: Math.random() * 100,
+        color: colors[i % colors.length],
+        delay: Math.random() * 1.5,
+        size: 6 + Math.random() * 8,
+      })));
+      const timer = setTimeout(() => setConfetti([]), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [data.overallScore]);
 
   const handleShare = () => {
     try {
@@ -63,7 +94,7 @@ const EvaluationResult: React.FC<EvaluationResultProps> = ({
 
   const radius = 56;
   const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (data.overallScore / 100) * circumference;
+  const strokeDashoffset = circumference - (displayScore / 100) * circumference;
 
   const langKey = i18n.language.startsWith('tr') ? 'tr' : 'en';
 
@@ -150,6 +181,21 @@ const EvaluationResult: React.FC<EvaluationResultProps> = ({
 
   return (
     <div className="space-y-6 animate-fade-in pb-12 max-w-5xl mx-auto print:p-0 print:space-y-1 print:pb-0 print:m-0 print:max-w-none">
+      {confetti.map(c => (
+        <div key={c.id} className="animate-confetti pointer-events-none"
+          style={{ position:'fixed', left:`${c.x}%`, top:0, width:c.size, height:c.size,
+                   backgroundColor:c.color, zIndex:9999, animationDelay:`${c.delay}s`,
+                   borderRadius: c.id % 3 === 0 ? '50%' : '2px' }} />
+      ))}
+
+      {data.overallScore >= 80 && (
+        <div className="text-center py-3 px-6 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl border border-emerald-200 dark:border-emerald-800 animate-fade-in print:hidden">
+          <p className="text-emerald-700 dark:text-emerald-300 font-black text-sm">
+            🎉 {langKey === 'tr' ? 'Harika bir performans!' : 'Excellent performance!'}
+          </p>
+        </div>
+      )}
+
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 print:hidden">
         <button
           onClick={onBack}
@@ -260,7 +306,7 @@ const EvaluationResult: React.FC<EvaluationResultProps> = ({
                 <circle cx="96" cy="96" r={radius} stroke="currentColor" strokeWidth="12" fill="transparent" className="text-slate-100 dark:text-slate-800" />
                 <circle cx="96" cy="96" r={radius} stroke="currentColor" strokeWidth="12" fill="transparent" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} strokeLinecap="round" className={`${getScoreColor(data.overallScore)} transition-all duration-1000 ease-out origin-center -rotate-90`} />
                 <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" dy="0.3em" className={`text-6xl font-extrabold tracking-tighter ${getScoreColor(data.overallScore)} fill-current`} style={{ fontVariantNumeric: 'tabular-nums' }}>
-                  {data.overallScore}
+                  {displayScore}
                 </text>
               </svg>
             </div>

@@ -16,6 +16,7 @@ import ExamMode from './components/ExamMode';
 import ClassManager from './components/ClassManager';
 import AnalyticsDashboard from './components/AnalyticsDashboard';
 import FeedbackForm from './components/FeedbackForm';
+import OnboardingModal from './components/OnboardingModal';
 
 // Icons
 import { Logo } from './icons/Logo';
@@ -44,6 +45,7 @@ const App: React.FC = () => {
     return (localStorage.getItem('theme') as 'light' | 'dark') || 'dark';
   });
   const [showFeedback, setShowFeedback] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(() => !localStorage.getItem('chitiq_onboarded'));
   
   // Data State
   const [history, setHistory] = useState<(Evaluation | ExamSession)[]>(() => {
@@ -348,19 +350,28 @@ const App: React.FC = () => {
                 <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white uppercase tracking-tighter mb-2">{t('landing.howItWorks')}</h2>
                 <p className="text-slate-500 dark:text-slate-400 text-base md:text-lg font-bold">{t('landing.howDesc')}</p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[1, 2, 3].map(step => (
-                  <div key={step} className="flex flex-col items-center md:items-start gap-4 p-8 rounded-[2.5rem] glass border border-white/40 dark:border-slate-800 shadow-xl transition-all hover:scale-[1.03] hover:shadow-indigo-500/10 hover:bg-white dark:hover:bg-slate-900/80">
-                    <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-indigo-500/30">
-                      {step}
-                    </div>
-                    <div className="text-center md:text-left mt-2">
-                      <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">{t(`landing.step${step}Title`)}</h3>
-                      <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm font-medium">{t(`landing.step${step}Desc`)}</p>
-                    </div>
+              {(() => {
+                const stepColors = [
+                  { gradient: 'from-indigo-500 to-violet-600', shadow: 'shadow-indigo-500/30', emoji: '🎯' },
+                  { gradient: 'from-rose-500 to-orange-500',   shadow: 'shadow-rose-500/30',   emoji: '🎤' },
+                  { gradient: 'from-emerald-500 to-teal-500',  shadow: 'shadow-emerald-500/30', emoji: '✨' },
+                ];
+                return (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {[1, 2, 3].map((step, idx) => (
+                      <div key={step} className="flex flex-col items-center md:items-start gap-4 p-8 rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl transition-all hover:scale-[1.03] hover:-translate-y-1">
+                        <div className={`flex-shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br ${stepColors[idx].gradient} flex items-center justify-center text-2xl shadow-lg ${stepColors[idx].shadow}`}>
+                          {stepColors[idx].emoji}
+                        </div>
+                        <div className="text-center md:text-left mt-2">
+                          <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">{t(`landing.step${step}Title`)}</h3>
+                          <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm font-medium">{t(`landing.step${step}Desc`)}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                );
+              })()}
             </div>
 
             {/* Criteria Mesh */}
@@ -376,7 +387,7 @@ const App: React.FC = () => {
                   {Object.keys(CRITERIA[i18n.language.startsWith('tr') ? 'tr' : 'en']).map((key) => (
                     <div key={key} className="group p-8 rounded-[2.5rem] bg-white/80 dark:bg-slate-950/80 border border-slate-100 dark:border-slate-800 shadow-xl flex flex-col gap-6 transition-all hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-2">
                       <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300 shadow-lg">
+                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-lg ${criteriaColors[key] ?? 'bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white dark:bg-indigo-900/40 dark:text-indigo-400'}`}>
                            {key === 'rapport' && <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
                            {key === 'organisation' && <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>}
                            {key === 'delivery' && <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" /></svg>}
@@ -438,6 +449,24 @@ const App: React.FC = () => {
       case 'dashboard':
         return (
           <div className="max-w-5xl mx-auto space-y-8 animate-slide-up relative z-10">
+            <div className="flex items-center justify-between pb-2">
+              <div>
+                <h1 className="text-2xl font-black text-slate-900 dark:text-white">
+                  {langKey === 'tr' ? 'Merhaba! 👋' : 'Welcome back! 👋'}
+                </h1>
+                <p className="text-slate-500 text-sm font-medium mt-0.5">
+                  {langKey === 'tr' ? 'Bugün ne konuşmak istersin?' : 'What would you like to practice today?'}
+                </p>
+              </div>
+              {history.length > 0 && (
+                <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl border border-emerald-100 dark:border-emerald-900/30">
+                  <span className="text-emerald-600 dark:text-emerald-400 font-black text-xl">{history.length}</span>
+                  <span className="text-emerald-700 dark:text-emerald-400 text-xs font-black uppercase tracking-wider">
+                    {langKey === 'tr' ? 'pratik' : 'sessions'}
+                  </span>
+                </div>
+              )}
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
               <div className="md:col-span-8 space-y-6">
                  <section className="glass rounded-[2rem] p-1 border border-white/40 dark:border-slate-800 shadow-2xl shadow-indigo-500/5"><TopicSelector 
@@ -531,12 +560,24 @@ const App: React.FC = () => {
     return t('dashboard.processingSteps.finalizing');
   };
 
+  const langKey = i18n.language.startsWith('tr') ? 'tr' : 'en';
+
+  const criteriaColors: Record<string, string> = {
+    rapport:      'bg-amber-50 text-amber-600 group-hover:bg-amber-500 dark:bg-amber-900/30 dark:text-amber-400 group-hover:text-white',
+    organisation: 'bg-sky-50 text-sky-600 group-hover:bg-sky-500 dark:bg-sky-900/30 dark:text-sky-400 group-hover:text-white',
+    delivery:     'bg-rose-50 text-rose-500 group-hover:bg-rose-500 dark:bg-rose-900/30 dark:text-rose-400 group-hover:text-white',
+    languageUse:  'bg-emerald-50 text-emerald-600 group-hover:bg-emerald-500 dark:bg-emerald-900/30 dark:text-emerald-400 group-hover:text-white',
+    creativity:   'bg-purple-50 text-purple-600 group-hover:bg-purple-500 dark:bg-purple-900/30 dark:text-purple-400 group-hover:text-white',
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 transition-colors duration-500 relative font-sans print:bg-white">
       {/* Subtle mesh background */}
       <div className="fixed inset-0 pointer-events-none print:hidden z-0">
         <div className="absolute inset-0 bg-mesh opacity-20"></div>
       </div>
+
+      {showOnboarding && <OnboardingModal onDone={() => setShowOnboarding(false)} lang={i18n.language} />}
 
       <header className="sticky top-0 z-50 bg-white/95 dark:bg-slate-950/95 border-b border-slate-200 dark:border-slate-800 backdrop-blur-sm transition-colors duration-300 print:hidden shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">

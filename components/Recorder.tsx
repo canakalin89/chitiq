@@ -13,7 +13,7 @@ interface RecorderProps {
 const MAX_RECORDING_TIME = 180;
 
 const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [hasStarted, setHasStarted] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -372,8 +372,8 @@ const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
             </div>
           </button>
         </div>
-        <p className="text-slate-400 dark:text-slate-500 text-sm font-medium text-center max-w-xs leading-relaxed">
-          {t('recorder.startHint')}
+        <p className="text-slate-500 dark:text-slate-400 text-sm font-bold text-center max-w-xs leading-relaxed">
+          💪 {i18n.language.startsWith('tr') ? 'Hazır mısın? Al nefesini ve başla!' : 'Ready? Take a breath and go!'}
         </p>
       </div>
     );
@@ -391,8 +391,14 @@ const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
           </div>
           <span className="text-slate-800 dark:text-slate-100 font-black text-lg tracking-tight">{t('dashboard.recording')}</span>
         </div>
-        <div className="font-mono text-2xl text-slate-900 dark:text-slate-100 font-black bg-white dark:bg-slate-800 px-6 py-2 rounded-xl shadow-inner border border-slate-200 dark:border-slate-700">
-          {formatTime(timer)} <span className="text-slate-400 text-lg">/ 03:00</span>
+        <div className="flex flex-col items-end gap-1.5">
+          <div className="font-mono text-2xl text-slate-900 dark:text-slate-100 font-black bg-white dark:bg-slate-800 px-6 py-2 rounded-xl shadow-inner border border-slate-200 dark:border-slate-700">
+            {formatTime(timer)} <span className="text-slate-400 text-lg">/ 03:00</span>
+          </div>
+          <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+            <div className="h-full bg-indigo-500 rounded-full transition-all duration-1000"
+                 style={{ width: `${(timer / MAX_RECORDING_TIME) * 100}%` }} />
+          </div>
         </div>
       </div>
 
