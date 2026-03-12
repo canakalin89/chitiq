@@ -1,0 +1,7 @@
+{
+  "name": "ChitIQ_V2_Latest",
+  "description": "A React application for evaluating speaking skills using AI, providing feedback on rapport, organization, delivery, language use, and creativity.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

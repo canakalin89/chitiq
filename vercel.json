@@ -1,0 +1,14 @@
+{
+  "functions": {
+    "api/evaluate.ts": {
+      "maxDuration": 60
+    },
+    "api/transcribe.ts": {
+      "maxDuration": 15
+    }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
+}
