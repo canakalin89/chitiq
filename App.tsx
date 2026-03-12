@@ -100,6 +100,24 @@ const App: React.FC = () => {
     localStorage.setItem('classes', JSON.stringify(classes));
   }, [classes]);
 
+  // URL Hash: shared result detection
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash.startsWith('#result=')) {
+      try {
+        const encoded = hash.slice(8);
+        const json = decodeURIComponent(atob(encoded));
+        const data: EvaluationResultData = JSON.parse(json);
+        setEvaluationData(data);
+        setView('result');
+        // Clean hash from URL without reload
+        window.history.replaceState(null, '', window.location.pathname);
+      } catch {
+        // Invalid hash, ignore
+      }
+    }
+  }, []);
+
   // Counter Animation
   useEffect(() => {
     if (view === 'landing') {
@@ -514,17 +532,14 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 transition-colors duration-500 overflow-hidden relative font-sans print:bg-white">
-      {/* Dynamic Aurora Background */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden print:hidden z-0">
-        <div className="absolute inset-0 bg-mesh opacity-30"></div>
-        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-indigo-200/40 dark:bg-indigo-900/20 rounded-full blur-[120px] animate-blob"></div>
-        <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-purple-200/40 dark:bg-purple-900/20 rounded-full blur-[120px] animate-blob" style={{ animationDelay: '3s' }}></div>
-        <div className="absolute top-[20%] right-[10%] w-[40%] h-[40%] bg-blue-200/30 dark:bg-blue-900/10 rounded-full blur-[100px] animate-blob" style={{ animationDelay: '6s' }}></div>
+    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 transition-colors duration-500 relative font-sans print:bg-white">
+      {/* Subtle mesh background */}
+      <div className="fixed inset-0 pointer-events-none print:hidden z-0">
+        <div className="absolute inset-0 bg-mesh opacity-20"></div>
       </div>
 
-      <header className="sticky top-0 z-50 glass border-b border-white/20 dark:border-slate-800 transition-colors duration-300 print:hidden shadow-lg shadow-slate-900/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <header className="sticky top-0 z-50 bg-white/95 dark:bg-slate-950/95 border-b border-slate-200 dark:border-slate-800 backdrop-blur-sm transition-colors duration-300 print:hidden shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 cursor-pointer" onClick={() => { setView('landing'); setIsExamMode(false); }}><Logo /><div className="hidden md:block w-px h-6 bg-slate-200 dark:bg-slate-700"></div><span className="text-xs md:text-sm font-black text-slate-500 dark:text-slate-400 tracking-wide uppercase">{t('app.subtitle')}</span></div>
           <div className="flex items-center gap-2 sm:gap-3">
             {view !== 'landing' && <button onClick={() => { setView('dashboard'); setIsExamMode(false); }} className="p-3 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-2xl transition-all duration-300" title="Home"><HomeIcon className="w-5 h-5" /></button>}
@@ -540,7 +555,7 @@ const App: React.FC = () => {
         {renderContent()}
       </main>
 
-      <footer className="w-full py-12 text-center relative z-10 border-t border-slate-200/50 dark:border-slate-800/50 bg-white/30 dark:bg-slate-900/30 backdrop-blur-md mt-auto print:hidden">
+      <footer className="w-full py-10 text-center relative z-10 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 mt-auto print:hidden">
         <div className="max-w-7xl mx-auto px-4">
           <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Built with <span className="font-semibold text-sky-500">React</span>, <span className="font-semibold text-blue-500">TypeScript</span> & <span className="font-semibold text-cyan-500">Tailwind</span> by <a href="https://instagram.com/can_akalin" target="_blank" rel="noopener noreferrer" className="text-slate-700 dark:text-slate-200 font-bold hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors inline-flex items-center gap-1 underline underline-offset-4 decoration-indigo-500/30">Can AKALIN</a></p>
         </div>
