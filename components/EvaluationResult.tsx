@@ -22,6 +22,20 @@ const EvaluationResult: React.FC<EvaluationResultProps> = ({
 }) => {
   const { t, i18n } = useTranslation();
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = () => {
+    try {
+      const encoded = btoa(encodeURIComponent(JSON.stringify(data)));
+      const url = `${window.location.origin}/#result=${encoded}`;
+      navigator.clipboard.writeText(url).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2500);
+      });
+    } catch {
+      // fallback: do nothing
+    }
+  };
 
   useEffect(() => {
     if (audioBlob) {
@@ -144,10 +158,26 @@ const EvaluationResult: React.FC<EvaluationResultProps> = ({
           <BackIcon className="w-5 h-5" />
           {t('common.goBack')}
         </button>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+           <div className="relative">
+             <button
+               onClick={handleShare}
+               className="flex items-center gap-2 px-5 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border border-slate-200 dark:border-slate-700"
+             >
+               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+               </svg>
+               {copied ? 'Kopyalandı!' : 'Linki Kopyala'}
+             </button>
+             {copied && (
+               <div className="absolute -top-9 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg whitespace-nowrap pointer-events-none animate-fade-in">
+                 Link panoya kopyalandı
+               </div>
+             )}
+           </div>
            <button
              onClick={handlePrint}
-             className="flex items-center gap-2 px-6 py-2 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 transition-all"
+             className="flex items-center gap-2 px-6 py-2 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all"
            >
              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                <path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.618 0-1.113-.493-1.12-1.112L5.882 18m11.778 0H5.882M6.72 13.829l1.41-5.64m1.41 5.64H14.25m5.341-3.172l-1.41-5.64m1.41 5.64l.842 3.368a1.125 1.125 0 01-1.12 1.405h-1.076M14.25 13.829v-1.125c0-.621.504-1.125 1.125-1.125h1.275m-4.5 1.125v-1.125c0-.621.504-1.125 1.125-1.125H14.25m-2.625 0H12m-2.625 0H9m-2.625 0H6M4.5 9h15M10.125 1.5h3.75a1.125 1.125 0 011.125 1.125v2.625h-6V2.625a1.125 1.125 0 011.125-1.125z" />
@@ -222,7 +252,7 @@ const EvaluationResult: React.FC<EvaluationResultProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 print:grid-cols-1 print:gap-1">
         <div className="lg:col-span-1 space-y-6 print:flex print:flex-row print:gap-2 print:items-start print:space-y-0">
           {/* Main Score Circle (Hidden in Print to save space) */}
-          <div className="glass bg-white dark:bg-slate-900 rounded-3xl p-8 border border-white/20 dark:border-slate-800 shadow-xl flex flex-col items-center relative overflow-hidden print:hidden">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center relative overflow-hidden print:hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-600"></div>
             <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-6">{t('evaluation.overallScore')}</h3>
             <div className="relative w-48 h-48">
@@ -237,7 +267,7 @@ const EvaluationResult: React.FC<EvaluationResultProps> = ({
           </div>
 
           {/* Skill Radar Chart */}
-          <div className="glass bg-white dark:bg-slate-900 rounded-3xl p-6 border border-white/20 dark:border-slate-800 shadow-lg flex flex-col items-center print:shadow-none print:border print:border-slate-200 print:w-1/4 print:p-1 print:rounded-lg">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center print:shadow-none print:border print:border-slate-200 print:w-1/4 print:p-1 print:rounded-lg">
              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2 print:text-[6px] print:mb-0.5">PERFORMANCE CHART</h3>
              <div className="w-full aspect-square max-w-[260px] print:max-w-[90px]">
                 {renderRadarChart(60, 160)}
@@ -255,12 +285,12 @@ const EvaluationResult: React.FC<EvaluationResultProps> = ({
 
         <div className="lg:col-span-2 space-y-6 print:lg:col-span-1 print:space-y-1">
           {audioUrl && (
-             <div className="glass bg-white dark:bg-slate-900 rounded-2xl p-4 border border-white/20 dark:border-slate-800 shadow-sm flex items-center gap-4 print:hidden">
+             <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4 print:hidden">
                 <audio controls src={audioUrl} className="w-full h-10" />
              </div>
           )}
           
-          <div className="glass bg-indigo-50/50 dark:bg-indigo-900/10 rounded-2xl p-8 border border-indigo-100 dark:border-indigo-900/30 shadow-sm print:hidden">
+          <div className="bg-indigo-50 dark:bg-indigo-950/30 rounded-2xl p-8 border border-indigo-100 dark:border-indigo-900/30 shadow-sm print:hidden">
              <div className="flex items-center gap-3 mb-4">
                 <div className="p-2.5 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl text-indigo-600 dark:text-indigo-400">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6"><path fillRule="evenodd" d="M5.625 1.5c-1.036 0-1.875.84-1.875 1.875v17.25c0 1.035.84 1.875 1.875 1.875h12.75c1.035 0 1.875-.84 1.875-1.875V12.75A3.75 3.75 0 0016.5 9h-1.875a1.875 1.875 0 01-1.875-1.875V5.25A3.75 3.75 0 009 1.5H5.625zM7.5 15a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5A.75.75 0 017.5 15zm.75 2.25a.75.75 0 000 1.5H12a.75.75 0 000-1.5H8.25z" clipRule="evenodd" /></svg>

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Evaluation } from '../types';
 import { BackIcon } from '../icons/BackIcon';
 import { TrashIcon } from '../icons/TrashIcon';
+import ProgressChart from './ProgressChart';
 
 interface HistoryViewProps {
   history: Evaluation[];
@@ -20,11 +21,23 @@ const HistoryView: React.FC<HistoryViewProps> = ({
   onBack 
 }) => {
   const { t } = useTranslation();
-
   const [showConfirm, setShowConfirm] = useState(false);
 
+  const bestScore = history.length > 0 ? Math.max(...history.map(e => e.overallScore)) : null;
+  const avgScore = history.length > 0 ? Math.round(history.reduce((s, e) => s + e.overallScore, 0) / history.length) : null;
+  const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const recentCount = history.filter(e => new Date(e.date).getTime() > sevenDaysAgo).length;
+  const recentAvg = (() => {
+    const recent = history.filter(e => new Date(e.date).getTime() > sevenDaysAgo);
+    const older = history.filter(e => new Date(e.date).getTime() <= sevenDaysAgo);
+    if (recent.length === 0 || older.length === 0) return null;
+    const rAvg = recent.reduce((s, e) => s + e.overallScore, 0) / recent.length;
+    const oAvg = older.reduce((s, e) => s + e.overallScore, 0) / older.length;
+    return rAvg - oAvg;
+  })();
+
   return (
-    <div className="space-y-8 animate-fade-in pb-20">
+    <div className="space-y-6 animate-fade-in pb-20">
       <div className="flex items-center justify-between bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm sticky top-24 z-30">
         <div className="flex items-center gap-4">
             <button
@@ -71,6 +84,41 @@ const HistoryView: React.FC<HistoryViewProps> = ({
           </div>
         )}
       </div>
+
+      {history.length >= 2 && (
+        <>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-4">
+              <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">En Yüksek</p>
+              <p className={`text-2xl font-black ${bestScore !== null && bestScore >= 80 ? 'text-emerald-600' : bestScore !== null && bestScore >= 60 ? 'text-amber-500' : 'text-rose-500'}`}>
+                {bestScore ?? '—'}
+              </p>
+            </div>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-4">
+              <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">Ortalama</p>
+              <p className={`text-2xl font-black ${avgScore !== null && avgScore >= 80 ? 'text-emerald-600' : avgScore !== null && avgScore >= 60 ? 'text-amber-500' : 'text-rose-500'}`}>
+                {avgScore ?? '—'}
+              </p>
+            </div>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-4">
+              <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">Toplam</p>
+              <p className="text-2xl font-black text-indigo-600 dark:text-indigo-400">{history.length}</p>
+            </div>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-4">
+              <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">Son 7 Gün</p>
+              <div className="flex items-baseline gap-1.5">
+                <p className="text-2xl font-black text-slate-800 dark:text-white">{recentCount}</p>
+                {recentAvg !== null && (
+                  <span className={`text-xs font-bold ${recentAvg > 0 ? 'text-emerald-600' : 'text-rose-500'}`}>
+                    {recentAvg > 0 ? `↑` : `↓`}{Math.abs(Math.round(recentAvg))} pt
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+          <ProgressChart history={history} />
+        </>
+      )}
 
       {history.length === 0 ? (
         <div className="text-center py-24 bg-white/50 dark:bg-slate-900/50 rounded-3xl border border-dashed border-slate-300 dark:border-slate-700 backdrop-blur-sm">
