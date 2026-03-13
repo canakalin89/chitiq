@@ -93,6 +93,7 @@ const App: React.FC = () => {
   // Loading State
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [estimatedTimeLeft, setEstimatedTimeLeft] = useState(15);
+  const [tipIndex, setTipIndex] = useState(0);
 
   // Persistence
   useEffect(() => {
@@ -161,6 +162,13 @@ const App: React.FC = () => {
       }, 1000);
     }
     return () => { clearInterval(progressInterval); clearInterval(timeInterval); };
+  }, [view]);
+
+  useEffect(() => {
+    if (view !== 'evaluating') return;
+    setTipIndex(0);
+    const t = setInterval(() => setTipIndex(i => (i + 1) % 4), 4000);
+    return () => clearInterval(t);
   }, [view]);
 
   const testimonials = useMemo(() => {
@@ -520,13 +528,41 @@ const App: React.FC = () => {
         );
 
       case 'evaluating': {
-        const radius = 70;
-        const circumference = 2 * Math.PI * radius;
-        const strokeDashoffset = circumference - (loadingProgress / 100) * circumference;
+        const isTr = i18n.language.startsWith('tr');
+        const stepIndex = loadingProgress < 25 ? 0 : loadingProgress < 60 ? 1 : loadingProgress < 90 ? 2 : 3;
+        const steps = [
+          {
+            icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>,
+            label: isTr ? 'Yükleniyor' : 'Uploading',
+          },
+          {
+            icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" /></svg>,
+            label: isTr ? 'Çözümleniyor' : 'Transcribing',
+          },
+          {
+            icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg>,
+            label: isTr ? 'Analiz' : 'Analyzing',
+          },
+          {
+            icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" /></svg>,
+            label: isTr ? 'Hazırlanıyor' : 'Finalizing',
+          },
+        ];
+        const tips = isTr ? [
+          'Göz teması güven verir — dinleyicilerin %70\'i bunu fark eder.',
+          'Konuşma hızını değiştirmek dinleyiciyi uyanık tutar.',
+          'Kısa duraklamalar mesajı güçlendirir ve vurgu yaratır.',
+          'El hareketleri ile desteklenen konuşmalar daha akılda kalıcıdır.',
+        ] : [
+          'Eye contact builds trust — 70% of listeners notice it.',
+          'Varying your speaking pace keeps the audience engaged.',
+          'Strategic pauses add emphasis and let ideas land.',
+          'Gestures that match your words make speeches more memorable.',
+        ];
         return (
-          <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6 animate-fade-in">
+          <div className="flex items-center justify-center min-h-[60vh] px-4 animate-fade-in">
             {error ? (
-              <div className="card p-8 max-w-md w-full mx-4 text-center">
+              <div className="card p-8 max-w-md w-full text-center">
                 <div className="w-16 h-16 mx-auto bg-rose-500 text-white rounded-3xl flex items-center justify-center mb-5">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -540,39 +576,68 @@ const App: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <>
-                {/* Animated waveform bars */}
-                <div className="flex items-center justify-center gap-[3px] h-20 w-64">
-                  {Array.from({ length: 28 }).map((_, i) => {
-                    const mid = 13.5;
-                    const dist = Math.abs(i - mid) / mid;
-                    const maxH = Math.round((1 - dist * 0.5) * 80);
-                    return (
-                      <div
-                        key={i}
-                        className="wave-bar rounded-full flex-shrink-0"
-                        style={{
-                          width: 5,
-                          height: maxH,
-                          background: `linear-gradient(to top, rgba(244,63,94,0.85), rgba(139,92,246,0.85))`,
-                          animationDelay: `${(i * 0.045).toFixed(3)}s`,
-                        }}
-                      />
-                    );
-                  })}
+              <div className="card overflow-hidden max-w-sm w-full">
+                {/* Gradient header */}
+                <div className="px-6 py-4 text-center" style={{ background: 'linear-gradient(135deg, #7c3aed, #e11d48)' }}>
+                  <p className="text-white font-black text-base tracking-wide">
+                    {isTr ? '✨ Konuşmanız Analiz Ediliyor' : '✨ Analyzing Your Speech'}
+                  </p>
                 </div>
-                <div className="relative w-36 h-36">
-                  <svg className="w-full h-full" viewBox="0 0 224 224">
-                    <circle cx="112" cy="112" r={radius} stroke="currentColor" strokeWidth="10" fill="transparent" className="text-slate-200 dark:text-slate-800" />
-                    <circle cx="112" cy="112" r={radius} stroke="currentColor" strokeWidth="10" fill="transparent" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} strokeLinecap="round" className="text-violet-500 transition-all duration-300 ease-linear origin-center -rotate-90" />
-                    <text x="112" y="112" textAnchor="middle" dominantBaseline="middle" dy=".1em" className="text-2xl font-black fill-slate-900 dark:fill-white" style={{ fontVariantNumeric: 'tabular-nums' }}>{Math.round(loadingProgress)}%</text>
-                  </svg>
+
+                <div className="p-6 space-y-6">
+                  {/* Pulsing orb */}
+                  <div className="relative w-36 h-36 flex items-center justify-center mx-auto">
+                    <div className="orb-ring absolute inset-0 rounded-full bg-violet-500" style={{ animationDelay: '0s' }} />
+                    <div className="orb-ring absolute inset-3 rounded-full bg-violet-500" style={{ animationDelay: '0.5s' }} />
+                    <div className="orb-ring absolute inset-6 rounded-full bg-violet-400" style={{ animationDelay: '1s' }} />
+                    <div className="absolute inset-10 rounded-full" style={{ background: 'linear-gradient(135deg, #7c3aed, #e11d48)' }} />
+                    <span className="relative z-10 text-2xl font-black text-white tabular-nums" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>
+                      {Math.round(loadingProgress)}%
+                    </span>
+                  </div>
+
+                  {/* Step pipeline */}
+                  <div className="flex items-start justify-between gap-1">
+                    {steps.map((step, i) => {
+                      const done = i < stepIndex;
+                      const active = i === stepIndex;
+                      return (
+                        <div key={i} className="flex flex-col items-center gap-1.5 flex-1">
+                          <div className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all ${
+                            done ? 'bg-emerald-500 text-white' :
+                            active ? 'bg-violet-600 text-white animate-pulse' :
+                            'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600'
+                          }`}>
+                            {done ? (
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                              </svg>
+                            ) : step.icon}
+                          </div>
+                          <span className={`text-[10px] font-bold text-center leading-tight ${
+                            done ? 'text-emerald-600 dark:text-emerald-400' :
+                            active ? 'text-violet-600 dark:text-violet-400' :
+                            'text-slate-400 dark:text-slate-600'
+                          }`}>{step.label}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Current step text + time */}
+                  <div className="text-center space-y-1">
+                    <p className="text-sm font-black text-slate-800 dark:text-white">{progressText(loadingProgress)}</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">{t('dashboard.estimatedTime', { seconds: estimatedTimeLeft })}</p>
+                  </div>
+
+                  {/* Rotating tip */}
+                  <div className="bg-violet-50 dark:bg-violet-900/20 rounded-2xl px-4 py-3 border border-violet-100 dark:border-violet-800/40">
+                    <p className="text-[11px] text-violet-700 dark:text-violet-300 font-semibold text-center leading-relaxed">
+                      💡 {tips[tipIndex]}
+                    </p>
+                  </div>
                 </div>
-                <div className="text-center">
-                  <p className="text-lg font-black text-slate-900 dark:text-white">{progressText(loadingProgress)}</p>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">{t('dashboard.estimatedTime', { seconds: estimatedTimeLeft })}</p>
-                </div>
-              </>
+              </div>
             )}
           </div>
         );

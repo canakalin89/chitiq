@@ -110,6 +110,13 @@
       }
       .wave-bar { transform-origin: center; animation: waveBar 1.2s ease-in-out infinite; }
 
+      /* Evaluating orb rings */
+      @keyframes orbRing {
+        0%, 100% { transform: scale(1);    opacity: 0.18; }
+        50%       { transform: scale(1.22); opacity: 0.06; }
+      }
+      .orb-ring { animation: orbRing 2s ease-in-out infinite; }
+
       /* Print */
       @media print {
         @page { size: A4; margin: 0.5cm; }
