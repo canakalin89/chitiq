@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Evaluation } from '../types';
 import { BackIcon } from '../icons/BackIcon';
@@ -23,18 +23,20 @@ const HistoryView: React.FC<HistoryViewProps> = ({
   const { t } = useTranslation();
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const bestScore = history.length > 0 ? Math.max(...history.map(e => e.overallScore)) : null;
-  const avgScore = history.length > 0 ? Math.round(history.reduce((s, e) => s + e.overallScore, 0) / history.length) : null;
-  const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-  const recentCount = history.filter(e => new Date(e.date).getTime() > sevenDaysAgo).length;
-  const recentAvg = (() => {
+  const { bestScore, avgScore, recentCount, recentAvg } = useMemo(() => {
+    if (history.length === 0) return { bestScore: null, avgScore: null, recentCount: 0, recentAvg: null };
+    const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
     const recent = history.filter(e => new Date(e.date).getTime() > sevenDaysAgo);
-    const older = history.filter(e => new Date(e.date).getTime() <= sevenDaysAgo);
-    if (recent.length === 0 || older.length === 0) return null;
-    const rAvg = recent.reduce((s, e) => s + e.overallScore, 0) / recent.length;
-    const oAvg = older.reduce((s, e) => s + e.overallScore, 0) / older.length;
-    return rAvg - oAvg;
-  })();
+    const older  = history.filter(e => new Date(e.date).getTime() <= sevenDaysAgo);
+    return {
+      bestScore:   Math.max(...history.map(e => e.overallScore)),
+      avgScore:    Math.round(history.reduce((s, e) => s + e.overallScore, 0) / history.length),
+      recentCount: recent.length,
+      recentAvg:   recent.length > 0 && older.length > 0
+        ? (recent.reduce((s, e) => s + e.overallScore, 0) / recent.length) - (older.reduce((s, e) => s + e.overallScore, 0) / older.length)
+        : null,
+    };
+  }, [history]);
 
   return (
     <div className="space-y-4 animate-fade-in pb-20">

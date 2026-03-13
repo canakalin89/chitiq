@@ -16,5 +16,15 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, '.'),
     }
-  }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom'],
+          'vendor-i18n':  ['i18next', 'react-i18next', 'i18next-browser-languagedetector'],
+        },
+      },
+    },
+  },
 });
