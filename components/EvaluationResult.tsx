@@ -255,7 +255,7 @@ const EvaluationResult: React.FC<EvaluationResultProps> = ({
         </div>
         <div className="card p-5">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">{t('evaluation.transcription')}</h3>
-          <p className="font-mono text-xs text-slate-500 dark:text-slate-400 leading-relaxed whitespace-pre-wrap bg-[#f7f7f5] dark:bg-[#1a1a1a] p-3 rounded-lg line-clamp-6">{data.feedback.transcription}</p>
+          <p className="font-mono text-xs text-slate-500 dark:text-slate-400 leading-relaxed whitespace-pre-wrap bg-[#f7f7f5] dark:bg-[#1a1a1a] p-3 rounded-lg max-h-40 overflow-y-auto">{data.feedback.transcription}</p>
         </div>
       </div>
 
