@@ -29,87 +29,78 @@
 
     <style>
       /* Custom Scrollbar */
-      ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 3px; }
+      .dark ::-webkit-scrollbar-thumb { background: #3a3a3a; }
+      ::-webkit-scrollbar-thumb:hover { background: #b0b0b0; }
+      .dark ::-webkit-scrollbar-thumb:hover { background: #525252; }
+
+      /* Card Utility — Notion-style clean surface */
+      .card {
+        background: #ffffff;
+        border: 1px solid #e9e9e7;
+        border-radius: 12px;
       }
-      ::-webkit-scrollbar-track {
-        background: transparent;
+      .dark .card {
+        background: #212121;
+        border: 1px solid #2e2e2e;
       }
-      ::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 4px;
-      }
-      .dark ::-webkit-scrollbar-thumb {
-        background: #334155;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
-      }
-      .dark ::-webkit-scrollbar-thumb:hover {
-        background: #475569;
-      }
-      
-      /* Glass Utility — Clean card style */
+
+      /* Legacy .glass → same as .card for backward compat */
       .glass {
         background: #ffffff;
-        border: 1px solid #e2e8f0;
+        border: 1px solid #e9e9e7;
       }
       .dark .glass {
-        background: #0f172a;
-        border: 1px solid #1e293b;
+        background: #212121;
+        border: 1px solid #2e2e2e;
       }
 
-      /* Background Mesh Grid */
-      .bg-mesh {
-        background-image: 
-          radial-gradient(circle at 1px 1px, rgba(99, 102, 241, 0.08) 1px, transparent 0);
-        background-size: 40px 40px;
+      /* Sidebar slide-in animation */
+      @keyframes slideInLeft {
+        from { transform: translateX(-100%); }
+        to   { transform: translateX(0); }
       }
-      .dark .bg-mesh {
-        background-image: 
-          radial-gradient(circle at 1px 1px, rgba(99, 102, 241, 0.15) 1px, transparent 0);
+      .animate-slide-in-left {
+        animation: slideInLeft 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
       }
 
-      /* Shimmer disabled — clean buttons */
+      /* Fade-in (kept, shortened) */
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(4px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in { animation: fadeIn 0.2s ease forwards; }
 
-      /* Print Optimization to force single page */
+      /* Slide-up (kept for modal) */
+      @keyframes slideUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      .animate-slide-up { animation: slideUp 0.25s ease forwards; }
+
+      /* Confetti (kept for compatibility) */
+      @keyframes confettiFall {
+        0%   { transform: translateY(-10px) rotate(0deg);   opacity: 1; }
+        100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+      }
+      .animate-confetti { animation: confettiFall 3s ease-out forwards; }
+
+      /* Print */
       @media print {
-        @page {
-          size: A4;
-          margin: 0.5cm;
-        }
+        @page { size: A4; margin: 0.5cm; }
         body {
-          background: white !important;
-          color: black !important;
-          margin: 0 !important;
-          padding: 0 !important;
-          height: auto !important;
-          min-height: 0 !important;
+          background: white !important; color: black !important;
+          margin: 0 !important; padding: 0 !important;
+          height: auto !important; min-height: 0 !important;
         }
-        #root {
-          height: auto !important;
-          min-height: 0 !important;
-        }
-        /* Remove any backgrounds or effects that might bleed into second page */
-        .fixed, .absolute-blob {
-          display: none !important;
-        }
-      }
-
-      /* Confetti Pieces */
-      .confetti-piece {
-        position: absolute;
-        width: 10px;
-        height: 10px;
-        background: #ffd700;
-        top: -10px;
-        z-index: 1000;
-        pointer-events: none;
+        #root { height: auto !important; min-height: 0 !important; }
+        .fixed, .absolute-blob { display: none !important; }
       }
     </style>
 </head>
-  <body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 antialiased transition-colors duration-500 font-sans selection:bg-indigo-500 selection:text-white">
+  <body class="bg-[#f7f7f5] text-[#1a1a1a] dark:bg-[#191919] dark:text-[#e9e9e9] antialiased transition-colors duration-300 font-sans selection:bg-indigo-100 selection:text-indigo-900 dark:selection:bg-indigo-900/40 dark:selection:text-indigo-200">
     <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>
