@@ -32,6 +32,18 @@ const ExamMode: React.FC<ExamModeProps> = ({ classes, onComplete, onCancel, mode
   const [winner, setWinner] = useState<string | null>(null);
   const [rotation, setRotation] = useState(0);
   const [confetti, setConfetti] = useState<any[]>([]);
+
+  // Practice quick-pick state
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [isPickAnimating, setIsPickAnimating] = useState(false);
+  const allTopicsFlat = useMemo(
+    () => Object.values(SPEAKING_TOPICS[i18n.language.startsWith('tr') ? 'tr' : 'en']).flat() as string[],
+    [i18n.language]
+  );
+  const [pickedTopic, setPickedTopic] = useState<string>(() => {
+    const all = Object.values(SPEAKING_TOPICS[i18n.language.startsWith('tr') ? 'tr' : 'en']).flat();
+    return all[Math.floor(Math.random() * all.length)] as string;
+  });
   
   const audioCtxRef = useRef<AudioContext | null>(null);
   const lastTickAngleRef = useRef(0);
@@ -54,6 +66,117 @@ const ExamMode: React.FC<ExamModeProps> = ({ classes, onComplete, onCancel, mode
     }
     return acc;
   }, {} as Record<string, string[]>);
+
+  const pickRandomTopic = (category: string | null) => {
+    const pool: readonly string[] = category
+      ? (topicsData as Record<string, readonly string[]>)[category] ?? allTopicsFlat
+      : allTopicsFlat;
+    setIsPickAnimating(true);
+    setTimeout(() => {
+      let next = pool[Math.floor(Math.random() * pool.length)] as string;
+      if (pool.length > 1 && next === pickedTopic) {
+        next = pool[(pool.indexOf(pickedTopic) + 1) % pool.length] as string;
+      }
+      setPickedTopic(next);
+      setIsPickAnimating(false);
+    }, 180);
+  };
+
+  const renderPracticeQuickPick = () => {
+    const isTr = langKey === 'tr';
+    const categories = Object.keys(topicsData);
+    const topicTheme = categories.find(cat =>
+      (topicsData as Record<string, readonly string[]>)[cat]?.includes(pickedTopic)
+    ) ?? '';
+    const chipLabel = (cat: string) => cat.includes(':') ? cat.split(':')[1].trim() : cat;
+
+    return (
+      <div className="max-w-lg mx-auto space-y-5 animate-fade-in px-1 pb-10">
+        {/* Header */}
+        <div className="flex items-center gap-3">
+          <button onClick={onCancel} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
+            <BackIcon className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+          </button>
+          <div>
+            <h1 className="text-2xl font-black text-slate-900 dark:text-white leading-none">
+              {isTr ? 'Konu Çek' : 'Topic Draw'}
+            </h1>
+            <p className="text-xs text-slate-400 font-medium mt-0.5">
+              {isTr ? 'Rastgele bir konu seç, hemen başla.' : 'Pick a random topic, start right away.'}
+            </p>
+          </div>
+        </div>
+
+        {/* Category chips */}
+        <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
+          <button
+            onClick={() => { setSelectedCategory(null); pickRandomTopic(null); }}
+            className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-black transition-all ${
+              selectedCategory === null
+                ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/30'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+            }`}
+          >
+            {isTr ? 'Tümü' : 'All'}
+          </button>
+          {categories.map(cat => (
+            <button
+              key={cat}
+              onClick={() => { setSelectedCategory(cat); pickRandomTopic(cat); }}
+              className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-black transition-all ${
+                selectedCategory === cat
+                  ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/30'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+              }`}
+            >
+              {chipLabel(cat)}
+            </button>
+          ))}
+        </div>
+
+        {/* Topic card */}
+        <div
+          className={`card p-7 space-y-3 transition-all duration-150 ${
+            isPickAnimating ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+          }`}
+        >
+          {topicTheme && (
+            <p className="text-[10px] font-black text-violet-500 uppercase tracking-widest">
+              {topicTheme}
+            </p>
+          )}
+          <p className="text-xl font-black text-slate-900 dark:text-white leading-snug">
+            "{pickedTopic}"
+          </p>
+        </div>
+
+        {/* Draw new */}
+        <button
+          onClick={() => pickRandomTopic(selectedCategory)}
+          disabled={isPickAnimating}
+          className="w-full py-3.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-2xl font-black transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+          </svg>
+          {isTr ? 'Yeni Konu Çek' : 'Draw New Topic'}
+        </button>
+
+        {/* Start */}
+        <button
+          onClick={() => pickedTopic && onComplete(pickedTopic, null)}
+          disabled={!pickedTopic || isPickAnimating}
+          className="w-full py-4 rounded-2xl font-black text-base text-white transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
+          style={{ background: 'linear-gradient(135deg, #7c3aed, #e11d48)' }}
+        >
+          {isTr ? 'Bu Konuyla Başla' : 'Start with This Topic'}
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
+        </button>
+      </div>
+    );
+  };
 
   const handleAddCustom = () => {
     if (!customQuestion.trim()) return;
@@ -547,6 +670,7 @@ const ExamMode: React.FC<ExamModeProps> = ({ classes, onComplete, onCancel, mode
     );
   };
 
+  if (mode === 'practice') return renderPracticeQuickPick();
   return <div className="w-full pb-20">{step === 'setup' ? renderSetup() : renderWheel()}</div>;
 };
 
