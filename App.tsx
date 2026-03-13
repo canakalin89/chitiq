@@ -541,11 +541,31 @@ const App: React.FC = () => {
               </div>
             ) : (
               <>
-                <div className="relative w-48 h-48">
+                {/* Animated waveform bars */}
+                <div className="flex items-center justify-center gap-[3px] h-20 w-64">
+                  {Array.from({ length: 28 }).map((_, i) => {
+                    const mid = 13.5;
+                    const dist = Math.abs(i - mid) / mid;
+                    const maxH = Math.round((1 - dist * 0.5) * 80);
+                    return (
+                      <div
+                        key={i}
+                        className="wave-bar rounded-full flex-shrink-0"
+                        style={{
+                          width: 5,
+                          height: maxH,
+                          background: `linear-gradient(to top, rgba(244,63,94,0.85), rgba(139,92,246,0.85))`,
+                          animationDelay: `${(i * 0.045).toFixed(3)}s`,
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+                <div className="relative w-36 h-36">
                   <svg className="w-full h-full" viewBox="0 0 224 224">
                     <circle cx="112" cy="112" r={radius} stroke="currentColor" strokeWidth="10" fill="transparent" className="text-slate-200 dark:text-slate-800" />
                     <circle cx="112" cy="112" r={radius} stroke="currentColor" strokeWidth="10" fill="transparent" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} strokeLinecap="round" className="text-violet-500 transition-all duration-300 ease-linear origin-center -rotate-90" />
-                    <text x="112" y="112" textAnchor="middle" dominantBaseline="middle" dy=".1em" className="text-3xl font-black fill-slate-900 dark:fill-white" style={{ fontVariantNumeric: 'tabular-nums' }}>{Math.round(loadingProgress)}%</text>
+                    <text x="112" y="112" textAnchor="middle" dominantBaseline="middle" dy=".1em" className="text-2xl font-black fill-slate-900 dark:fill-white" style={{ fontVariantNumeric: 'tabular-nums' }}>{Math.round(loadingProgress)}%</text>
                   </svg>
                 </div>
                 <div className="text-center">
