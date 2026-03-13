@@ -23,6 +23,7 @@ const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [liveTranscript, setLiveTranscript] = useState('');
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -33,6 +34,8 @@ const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef<number | null>(null);
   const isRecordingRef = useRef(false);
+  const recognitionRef = useRef<any>(null);
+  const liveTranscriptRef = useRef('');
 
   useEffect(() => { return () => cleanup(); }, []);
 
@@ -123,6 +126,37 @@ const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
     return '';
   };
 
+  const startSpeechRecognition = () => {
+    const SpeechRecognitionClass = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognitionClass) return;
+
+    try {
+      const recognition = new SpeechRecognitionClass();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = i18n.language.startsWith('tr') ? 'tr-TR' : 'en-US';
+      liveTranscriptRef.current = '';
+
+      recognition.onresult = (event: any) => {
+        let finalText = '';
+        let interimText = '';
+        for (let i = 0; i < event.results.length; i++) {
+          if (event.results[i].isFinal) {
+            finalText += event.results[i][0].transcript + ' ';
+          } else {
+            interimText += event.results[i][0].transcript;
+          }
+        }
+        liveTranscriptRef.current = finalText;
+        setLiveTranscript(finalText + interimText);
+      };
+
+      recognition.onerror = () => {};
+      recognition.start();
+      recognitionRef.current = recognition;
+    } catch {}
+  };
+
   const startRecording = async () => {
     let stream: MediaStream;
     try {
@@ -138,6 +172,9 @@ const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
     if (audioContext.state === 'suspended') await audioContext.resume();
     setError(null); setHasStarted(true); setIsRecording(true);
     isRecordingRef.current = true;
+    setLiveTranscript('');
+    liveTranscriptRef.current = '';
+    startSpeechRecognition();
     try {
       const mimeType = getSupportedMimeType();
       const mediaRecorder = new MediaRecorder(stream, { mimeType });
@@ -160,14 +197,31 @@ const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
   const stopRecording = () => {
     if (!isRecording) return;
     setIsRecording(false); isRecordingRef.current = false;
+
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch {}
+      recognitionRef.current = null;
+    }
+
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       const mimeType = mediaRecorderRef.current.mimeType;
       mediaRecorderRef.current.onstop = async () => {
         const blob = new Blob(audioChunksRef.current, { type: mimeType || 'audio/webm' });
         setAudioBlob(blob); setAudioUrl(URL.createObjectURL(blob)); cleanup();
-        setIsTranscribing(true);
-        const text = await fetchTranscription(blob, mimeType || 'audio/webm');
-        setTranscription(text); setIsTranscribing(false); setIsReviewing(true);
+
+        // Give recognition a moment to flush its last results
+        await new Promise(r => setTimeout(r, 400));
+
+        const webSpeechText = liveTranscriptRef.current.trim();
+        if (webSpeechText) {
+          setTranscription(webSpeechText);
+          setIsReviewing(true);
+        } else {
+          // Fallback: use server-side transcription
+          setIsTranscribing(true);
+          const text = await fetchTranscription(blob, mimeType || 'audio/webm');
+          setTranscription(text); setIsTranscribing(false); setIsReviewing(true);
+        }
       };
       mediaRecorderRef.current.stop();
     } else { cleanup(); }
@@ -179,6 +233,7 @@ const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
     setAudioBlob(null);
     if (audioUrl) { URL.revokeObjectURL(audioUrl); setAudioUrl(null); }
     setIsReviewing(false); setHasStarted(false); setTimer(0); setTranscription('');
+    setLiveTranscript(''); liveTranscriptRef.current = '';
   };
 
   const cleanup = () => {
@@ -189,6 +244,10 @@ const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
     }
     if (analyserRef.current) analyserRef.current.disconnect();
     if (sourceRef.current) sourceRef.current.disconnect();
+    if (recognitionRef.current) {
+      try { recognitionRef.current.abort(); } catch {}
+      recognitionRef.current = null;
+    }
   };
 
   const formatTime = (seconds: number) => {
@@ -222,7 +281,7 @@ const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
     );
   }
 
-  // ── Transcribing ───────────────────────────────────────────────────────────
+  // ── Transcribing (fallback for browsers without Web Speech API) ────────────
   if (isTranscribing) {
     return (
       <div className="card min-h-[400px] flex flex-col items-center justify-center gap-5 animate-fade-in">
@@ -231,8 +290,8 @@ const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
           <div className="absolute inset-0 rounded-full border-4 border-violet-500 border-t-transparent animate-spin"></div>
         </div>
         <div className="text-center">
-          <p className="text-base font-black text-slate-900 dark:text-white">{t('recorder.transcribing') || (isTr ? 'Konuşma analiz ediliyor...' : 'Transcribing your speech...')}</p>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">{t('recorder.transcribingHint') || (isTr ? 'Bir saniye...' : 'Just a moment.')}</p>
+          <p className="text-base font-black text-slate-900 dark:text-white">{t('recorder.transcribing')}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">{t('recorder.transcribingHint')}</p>
         </div>
       </div>
     );
@@ -351,12 +410,19 @@ const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
         </div>
       </div>
 
-      {/* Waveform */}
+      {/* Waveform + live transcript */}
       <div className="flex-1 flex flex-col items-center justify-center p-6 gap-4">
         <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 italic text-center">"{topic}"</p>
         <div className="relative w-full h-16">
           <canvas ref={canvasRef} width={800} height={64} className="w-full h-full opacity-90 pointer-events-none" />
         </div>
+        {liveTranscript ? (
+          <div className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl px-4 py-3 max-h-28 overflow-y-auto border border-slate-200 dark:border-slate-700">
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">{liveTranscript}</p>
+          </div>
+        ) : (
+          <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">{isTr ? 'Konuşunca burada görünecek...' : 'Your words will appear here...'}</p>
+        )}
       </div>
 
       {/* Footer */}
