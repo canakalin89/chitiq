@@ -231,14 +231,20 @@ const App: React.FC = () => {
     return t('dashboard.processingSteps.finalizing');
   };
 
-  // Criteria pastel colors for landing
-  const criteriaColors: Record<string, string> = {
-    rapport:      'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400',
-    organisation: 'bg-sky-50 text-sky-700 dark:bg-sky-900/20 dark:text-sky-400',
-    delivery:     'bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-400',
-    languageUse:  'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400',
-    creativity:   'bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400',
+  // Criteria colors — structural (solid bg for playful look)
+  const criteriaColors: Record<string, { bg: string; text: string; border: string }> = {
+    rapport:      { bg: 'bg-amber-400',   text: 'text-white', border: 'border-amber-500' },
+    organisation: { bg: 'bg-sky-400',     text: 'text-white', border: 'border-sky-500' },
+    delivery:     { bg: 'bg-rose-400',    text: 'text-white', border: 'border-rose-500' },
+    languageUse:  { bg: 'bg-emerald-400', text: 'text-white', border: 'border-emerald-500' },
+    creativity:   { bg: 'bg-purple-400',  text: 'text-white', border: 'border-purple-500' },
   };
+
+  const stepColors = [
+    { bg: 'bg-violet-500', text: 'text-white', num: 'bg-white/20 text-white' },
+    { bg: 'bg-rose-500',   text: 'text-white', num: 'bg-white/20 text-white' },
+    { bg: 'bg-emerald-500',text: 'text-white', num: 'bg-white/20 text-white' },
+  ];
 
   const renderContent = () => {
     switch (view) {
@@ -247,96 +253,101 @@ const App: React.FC = () => {
         return (
           <div className="animate-fade-in">
             {/* Hero */}
-            <section className="max-w-2xl mx-auto px-4 pt-16 pb-12 md:pt-24 md:pb-16 text-center">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-900/40 text-indigo-600 dark:text-indigo-400 text-xs font-medium mb-6">
-                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
+            <section className="max-w-3xl mx-auto px-4 pt-14 pb-10 md:pt-20 md:pb-14 text-center">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-600 text-white text-xs font-bold mb-7 shadow-md shadow-violet-200 dark:shadow-violet-900/30">
+                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
                 {t('landing.badge')}
               </div>
-              <h1 className="text-4xl md:text-6xl font-bold text-[#1a1a1a] dark:text-[#e9e9e9] tracking-tight leading-tight mb-4">
+              <h1 className="text-5xl md:text-7xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.05] mb-5 animate-bounce-in">
                 {t('landing.heroTitle')}
               </h1>
-              <p className="text-base md:text-lg text-slate-500 dark:text-slate-400 mb-8 max-w-lg mx-auto leading-relaxed">
+              <p className="text-lg md:text-xl text-slate-500 dark:text-slate-400 mb-9 max-w-xl mx-auto leading-relaxed font-medium">
                 {t('landing.heroDesc')}
               </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <button
                   onClick={() => setView('dashboard')}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold text-sm transition-colors shadow-sm"
+                  className="inline-flex items-center gap-3 px-8 py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-2xl font-black text-base transition-all shadow-lg shadow-violet-200 dark:shadow-violet-900/30 hover:scale-105 active:scale-95"
                 >
                   {t('landing.startBtn')}
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
                 </button>
-                <div className="flex items-center gap-2 px-4 py-3 bg-white dark:bg-[#212121] border border-[#e9e9e7] dark:border-[#2e2e2e] rounded-lg">
-                  <span className="text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wider font-medium">{t('dashboard.usageCount')}</span>
-                  <span className="text-sm font-bold text-[#1a1a1a] dark:text-[#e9e9e9] tabular-nums">{displayCount.toLocaleString()}+</span>
+                <div className="flex items-center gap-2.5 px-5 py-4 bg-white dark:bg-[#1e1b2e] rounded-2xl shadow-sm">
+                  <span className="text-2xl font-black text-violet-600 dark:text-violet-400 tabular-nums">{displayCount.toLocaleString()}+</span>
+                  <span className="text-sm font-bold text-slate-400 dark:text-slate-500">{t('dashboard.usageCount')}</span>
                 </div>
               </div>
             </section>
 
-            {/* How it works */}
-            <section className="max-w-2xl mx-auto px-4 pb-12">
-              <div className="card p-6 md:p-8">
-                <h2 className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-5">{t('landing.howItWorks')}</h2>
-                <div className="space-y-4">
-                  {[1, 2, 3].map((step) => (
-                    <div key={step} className="flex items-start gap-4">
-                      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 text-xs font-bold flex items-center justify-center border border-indigo-100 dark:border-indigo-900/40">
-                        {step}
-                      </span>
-                      <div>
-                        <p className="text-sm font-semibold text-[#1a1a1a] dark:text-[#e9e9e9]">{t(`landing.step${step}Title`)}</p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">{t(`landing.step${step}Desc`)}</p>
+            {/* How it works — 3 colored cards */}
+            <section className="max-w-3xl mx-auto px-4 pb-12">
+              <p className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-5 text-center">{t('landing.howItWorks')}</p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {[1, 2, 3].map((step) => {
+                  const color = stepColors[step - 1];
+                  return (
+                    <div key={step} className={`${color.bg} rounded-3xl p-6 ${color.text} shadow-lg`}>
+                      <div className="w-9 h-9 rounded-2xl bg-white/20 flex items-center justify-center mb-4">
+                        <span className="text-lg font-black">{step}</span>
                       </div>
+                      <p className="font-black text-base leading-snug mb-1">{t(`landing.step${step}Title`)}</p>
+                      <p className="text-sm opacity-85 leading-relaxed font-medium">{t(`landing.step${step}Desc`)}</p>
                     </div>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
             </section>
 
-            {/* Criteria */}
-            <section className="max-w-2xl mx-auto px-4 pb-12">
-              <h2 className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-4 px-1">{t('landing.criteriaTitle')}</h2>
-              <div className="flex flex-wrap gap-2">
-                {Object.keys(CRITERIA[langKey]).map((key) => (
-                  <span key={key} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border ${
-                    criteriaColors[key] ?? 'bg-slate-50 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
-                  } border-transparent`}>
-                    {t(`landing.criteriaDetails.${key}.title`)}
-                  </span>
-                ))}
+            {/* Criteria — solid colored pills */}
+            <section className="max-w-3xl mx-auto px-4 pb-12">
+              <p className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-5 text-center">{t('landing.criteriaTitle')}</p>
+              <div className="flex flex-wrap justify-center gap-3">
+                {Object.keys(CRITERIA[langKey]).map((key) => {
+                  const c = criteriaColors[key];
+                  return (
+                    <span
+                      key={key}
+                      className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-black shadow-md ${c?.bg ?? 'bg-slate-400'} ${c?.text ?? 'text-white'}`}
+                    >
+                      {t(`landing.criteriaDetails.${key}.title`)}
+                    </span>
+                  );
+                })}
               </div>
-              <p className="text-xs text-slate-400 dark:text-slate-500 mt-3 px-1">{t('landing.criteriaDesc')}</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 mt-4 text-center font-medium">{t('landing.criteriaDesc')}</p>
             </section>
 
             {/* Testimonials */}
             {testimonials.length > 0 && (
-              <section className="max-w-2xl mx-auto px-4 pb-16">
-                <div className="flex items-center justify-between mb-4 px-1">
-                  <h2 className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{t('landing.testimonialsTitle')}</h2>
-                  <button onClick={() => setShowFeedback(true)} className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-medium">
+              <section className="max-w-3xl mx-auto px-4 pb-16">
+                <div className="flex items-center justify-between mb-5">
+                  <p className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{t('landing.testimonialsTitle')}</p>
+                  <button onClick={() => setShowFeedback(true)} className="text-xs font-bold text-violet-600 dark:text-violet-400 hover:underline">
                     {t('feedback.writeBtn')}
                   </button>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {testimonials.map((item, idx) => (
-                    <div key={idx} className="card p-4">
-                      <div className="flex items-center gap-1 mb-2">
+                    <div key={idx} className="card p-5">
+                      {/* Colored top stripe based on type */}
+                      <div className={`h-1.5 rounded-full mb-4 ${item.type === 'teacher' ? 'bg-violet-400' : 'bg-sky-400'}`} />
+                      <div className="flex items-center gap-1 mb-3">
                         {[...Array(5)].map((_, i) => (
-                          <svg key={i} className={`w-3.5 h-3.5 ${i < item.stars ? 'text-amber-400' : 'text-slate-200 dark:text-slate-700'}`} fill="currentColor" viewBox="0 0 20 20">
+                          <svg key={i} className={`w-4 h-4 ${i < item.stars ? 'text-amber-400' : 'text-slate-200 dark:text-slate-700'}`} fill="currentColor" viewBox="0 0 20 20">
                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                           </svg>
                         ))}
                       </div>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed italic mb-3">"{item.comment}"</p>
-                      <div className="flex items-center gap-2">
-                        <div className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold ${item.type === 'teacher' ? 'bg-indigo-500' : 'bg-purple-500'}`}>
-                          <UserPlaceholder className="w-4 h-4" />
+                      <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed italic mb-4">"{item.comment}"</p>
+                      <div className="flex items-center gap-3">
+                        <div className={`w-9 h-9 rounded-2xl flex items-center justify-center text-white ${item.type === 'teacher' ? 'bg-violet-500' : 'bg-sky-500'}`}>
+                          <UserPlaceholder className="w-5 h-5" />
                         </div>
                         <div>
-                          <p className="text-xs font-semibold text-[#1a1a1a] dark:text-[#e9e9e9]">{item.name}</p>
-                          <p className="text-[10px] text-slate-400">{item.role}</p>
+                          <p className="text-sm font-black text-slate-900 dark:text-white">{item.name}</p>
+                          <p className="text-[11px] text-slate-400 font-medium">{item.role}</p>
                         </div>
                       </div>
                     </div>
@@ -353,20 +364,20 @@ const App: React.FC = () => {
       case 'dashboard':
         return (
           <div className="max-w-5xl mx-auto animate-fade-in">
-            {/* Welcome */}
-            <div className="flex items-center justify-between py-4 mb-2">
+            {/* Welcome header */}
+            <div className="flex items-center justify-between py-4 mb-4">
               <div>
-                <h1 className="text-xl font-semibold text-[#1a1a1a] dark:text-[#e9e9e9]">
-                  {langKey === 'tr' ? 'Merhaba 👋' : 'Welcome back 👋'}
+                <h1 className="text-3xl font-black text-slate-900 dark:text-white">
+                  {langKey === 'tr' ? 'Merhaba! 👋' : 'Welcome back! 👋'}
                 </h1>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-                  {langKey === 'tr' ? 'Bugün ne pratik yapıyoruz?' : 'What would you like to practice today?'}
+                <p className="text-base text-slate-500 dark:text-slate-400 font-medium mt-1">
+                  {langKey === 'tr' ? 'Bugün ne konuşmak istersin?' : 'What would you like to practice today?'}
                 </p>
               </div>
               {history.length > 0 && (
-                <div className="hidden sm:flex items-center gap-1.5 px-3 py-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-100 dark:border-emerald-900/40">
-                  <span className="text-lg font-bold text-emerald-700 dark:text-emerald-400 tabular-nums">{history.length}</span>
-                  <span className="text-xs font-medium text-emerald-600 dark:text-emerald-500 uppercase tracking-wide">
+                <div className="hidden sm:flex flex-col items-center px-5 py-3 bg-amber-400 rounded-2xl shadow-md shadow-amber-200 dark:shadow-amber-900/20">
+                  <span className="text-3xl font-black text-white tabular-nums">{history.length}</span>
+                  <span className="text-xs font-black text-white/90 uppercase tracking-wider">
                     {langKey === 'tr' ? 'pratik' : 'sessions'}
                   </span>
                 </div>
@@ -374,43 +385,52 @@ const App: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-              <div className="md:col-span-8 space-y-4">
+              <div className="md:col-span-8 space-y-5">
                 {/* Topic Selector */}
-                <div className="card p-1">
-                  <TopicSelector
-                    onSelectTopic={setCurrentTopic}
-                    onStart={() => { setIsExamMode(false); setView('recorder'); }}
-                    isStudentMode={isStudentMode}
-                    setIsStudentMode={setIsStudentMode}
-                  />
-                </div>
+                <TopicSelector
+                  onSelectTopic={setCurrentTopic}
+                  onStart={() => { setIsExamMode(false); setView('recorder'); }}
+                  isStudentMode={isStudentMode}
+                  setIsStudentMode={setIsStudentMode}
+                />
 
-                {/* Mode cards */}
-                <div className="grid grid-cols-2 gap-3">
+                {/* Big mode cards */}
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Practice Wheel */}
                   <button
                     onClick={() => { setIsExamMode(false); setView('practice-wheel'); }}
-                    className="card p-5 text-left hover:border-indigo-200 dark:hover:border-indigo-800/60 hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-colors group"
+                    className="rounded-3xl overflow-hidden text-left group shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all"
                   >
-                    <div className="w-9 h-9 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-3 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/50 transition-colors">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                        <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z" clipRule="evenodd" />
-                      </svg>
+                    <div className="bg-sky-500 px-5 pt-5 pb-4">
+                      <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-white">
+                          <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <p className="font-black text-white text-base leading-snug">{t('dashboard.wheelPractice')}</p>
                     </div>
-                    <p className="text-sm font-semibold text-[#1a1a1a] dark:text-[#e9e9e9]">{t('dashboard.wheelPractice')}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">{t('dashboard.wheelPracticeDesc')}</p>
+                    <div className="bg-white dark:bg-[#1e1b2e] px-5 py-3">
+                      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 leading-relaxed">{t('dashboard.wheelPracticeDesc')}</p>
+                    </div>
                   </button>
+
+                  {/* Exam Mode */}
                   <button
                     onClick={() => { setIsExamMode(true); setView('exam-setup'); }}
-                    className="card p-5 text-left hover:border-purple-200 dark:hover:border-purple-800/60 hover:bg-purple-50/30 dark:hover:bg-purple-900/10 transition-colors group"
+                    className="rounded-3xl overflow-hidden text-left group shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all"
                   >
-                    <div className="w-9 h-9 rounded-lg bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-3 group-hover:bg-purple-100 dark:group-hover:bg-purple-900/50 transition-colors">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                        <path d="M11.7 2.805a.75.75 0 01.6 0A60.65 60.65 0 0122.83 8.72a.75.75 0 01-.231 1.337 49.94 49.94 0 00-9.902 3.912l-.003.002-.34.18a.75.75 0 01-.707 0A50.88 50.88 0 002.75 10.25a.75.75 0 01-.31-1.274A50.39 50.39 0 0111.7 2.805z" />
-                        <path d="M13.06 15.473a48.45 48.45 0 017.623-2.662c.034 1.209.034 2.45 0 3.658a47.44 47.44 0 01-5.293 3.048.75.75 0 01-.654 0l-2.48-1.481a48.04 48.04 0 01-5.132-3.413 47.44 47.44 0 001.088-6.23l1.266-.735a44.86 44.86 0 009.262 3.25c.01.658.01 1.333 0 2.022a48.837 48.837 0 01-5.68 2.593z" />
-                      </svg>
+                    <div className="bg-purple-500 px-5 pt-5 pb-4">
+                      <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-white">
+                          <path d="M11.7 2.805a.75.75 0 01.6 0A60.65 60.65 0 0122.83 8.72a.75.75 0 01-.231 1.337 49.94 49.94 0 00-9.902 3.912l-.003.002-.34.18a.75.75 0 01-.707 0A50.88 50.88 0 002.75 10.25a.75.75 0 01-.31-1.274A50.39 50.39 0 0111.7 2.805z" />
+                          <path d="M13.06 15.473a48.45 48.45 0 017.623-2.662c.034 1.209.034 2.45 0 3.658a47.44 47.44 0 01-5.293 3.048.75.75 0 01-.654 0l-2.48-1.481a48.04 48.04 0 01-5.132-3.413 47.44 47.44 0 001.088-6.23l1.266-.735a44.86 44.86 0 009.262 3.25c.01.658.01 1.333 0 2.022a48.837 48.837 0 01-5.68 2.593z" />
+                        </svg>
+                      </div>
+                      <p className="font-black text-white text-base leading-snug">{t('dashboard.examMode')}</p>
                     </div>
-                    <p className="text-sm font-semibold text-[#1a1a1a] dark:text-[#e9e9e9]">{t('dashboard.examMode')}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">{t('dashboard.examModeDesc')}</p>
+                    <div className="bg-white dark:bg-[#1e1b2e] px-5 py-3">
+                      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 leading-relaxed">{t('dashboard.examModeDesc')}</p>
+                    </div>
                   </button>
                 </div>
 
@@ -418,25 +438,25 @@ const App: React.FC = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={() => setView('class-manager')}
-                    className="flex items-center gap-3 px-4 py-3 card hover:border-slate-300 dark:hover:border-slate-600 transition-colors"
+                    className="card flex items-center gap-3 px-5 py-4 hover:scale-[1.02] active:scale-[0.98] transition-all text-left"
                   >
-                    <div className="w-7 h-7 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center flex-shrink-0">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+                    <div className="w-9 h-9 rounded-xl bg-rose-100 dark:bg-rose-900/30 text-rose-500 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
                     </div>
-                    <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wide">{t('dashboard.manageClasses')}</span>
+                    <span className="text-sm font-black text-slate-700 dark:text-slate-200">{t('dashboard.manageClasses')}</span>
                   </button>
                   <button
                     onClick={() => setView('analytics')}
-                    className="flex items-center gap-3 px-4 py-3 card hover:border-slate-300 dark:hover:border-slate-600 transition-colors"
+                    className="card flex items-center gap-3 px-5 py-4 hover:scale-[1.02] active:scale-[0.98] transition-all text-left"
                   >
-                    <div className="w-7 h-7 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center flex-shrink-0">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+                    <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-500 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                       </svg>
                     </div>
-                    <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wide">{t('dashboard.analytics')}</span>
+                    <span className="text-sm font-black text-slate-700 dark:text-slate-200">{t('dashboard.analytics')}</span>
                   </button>
                 </div>
               </div>
@@ -446,9 +466,9 @@ const App: React.FC = () => {
                 <RecentHistory history={history} onSelect={handleSelectHistoryItem} />
                 <button
                   onClick={() => setView('history')}
-                  className="w-full py-2.5 px-4 card text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide hover:border-slate-300 dark:hover:border-slate-600 transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-3 px-4 card text-sm font-black text-violet-600 dark:text-violet-400 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                 >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   {t('common.viewAllHistory')}
@@ -494,30 +514,30 @@ const App: React.FC = () => {
           <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6 animate-fade-in">
             {error ? (
               <div className="card p-8 max-w-md w-full mx-4 text-center">
-                <div className="w-14 h-14 mx-auto bg-rose-50 dark:bg-rose-900/20 text-rose-500 rounded-full flex items-center justify-center mb-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7">
+                <div className="w-16 h-16 mx-auto bg-rose-500 text-white rounded-3xl flex items-center justify-center mb-5">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                 </div>
-                <h2 className="text-lg font-semibold text-[#1a1a1a] dark:text-[#e9e9e9] mb-2">{t('errors.generic')}</h2>
+                <h2 className="text-xl font-black text-slate-900 dark:text-white mb-2">{t('errors.generic')}</h2>
                 <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">{error}</p>
                 <div className="flex gap-3 justify-center">
-                  <button onClick={() => audioBlob && handleStopRecording(audioBlob)} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors">{t('common.retry')}</button>
-                  <button onClick={() => setView('dashboard')} className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-[#2e2e2e] dark:hover:bg-[#3a3a3a] text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium transition-colors">{t('common.cancel')}</button>
+                  <button onClick={() => audioBlob && handleStopRecording(audioBlob)} className="px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-2xl text-sm font-black transition-all hover:scale-105">{t('common.retry')}</button>
+                  <button onClick={() => setView('dashboard')} className="px-5 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-2xl text-sm font-black transition-all hover:scale-105">{t('common.cancel')}</button>
                 </div>
               </div>
             ) : (
               <>
                 <div className="relative w-48 h-48">
                   <svg className="w-full h-full" viewBox="0 0 224 224">
-                    <circle cx="112" cy="112" r={radius} stroke="currentColor" strokeWidth="8" fill="transparent" className="text-slate-200 dark:text-[#2e2e2e]" />
-                    <circle cx="112" cy="112" r={radius} stroke="currentColor" strokeWidth="8" fill="transparent" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} strokeLinecap="round" className="text-indigo-500 transition-all duration-300 ease-linear origin-center -rotate-90" />
-                    <text x="112" y="112" textAnchor="middle" dominantBaseline="middle" dy=".1em" className="text-3xl font-semibold fill-[#1a1a1a] dark:fill-[#e9e9e9]" style={{ fontVariantNumeric: 'tabular-nums' }}>{Math.round(loadingProgress)}%</text>
+                    <circle cx="112" cy="112" r={radius} stroke="currentColor" strokeWidth="10" fill="transparent" className="text-slate-200 dark:text-slate-800" />
+                    <circle cx="112" cy="112" r={radius} stroke="currentColor" strokeWidth="10" fill="transparent" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} strokeLinecap="round" className="text-violet-500 transition-all duration-300 ease-linear origin-center -rotate-90" />
+                    <text x="112" y="112" textAnchor="middle" dominantBaseline="middle" dy=".1em" className="text-3xl font-black fill-slate-900 dark:fill-white" style={{ fontVariantNumeric: 'tabular-nums' }}>{Math.round(loadingProgress)}%</text>
                   </svg>
                 </div>
                 <div className="text-center">
-                  <p className="text-base font-semibold text-[#1a1a1a] dark:text-[#e9e9e9]">{progressText(loadingProgress)}</p>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t('dashboard.estimatedTime', { seconds: estimatedTimeLeft })}</p>
+                  <p className="text-lg font-black text-slate-900 dark:text-white">{progressText(loadingProgress)}</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">{t('dashboard.estimatedTime', { seconds: estimatedTimeLeft })}</p>
                 </div>
               </>
             )}
@@ -546,7 +566,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#f7f7f5] dark:bg-[#191919] transition-colors duration-300 font-sans print:bg-white">
+    <div className="min-h-screen flex flex-col bg-[#f0eeff] dark:bg-[#13111f] transition-colors duration-300 font-sans print:bg-white">
       {showOnboarding && <OnboardingModal onDone={() => setShowOnboarding(false)} lang={i18n.language} />}
 
       <Sidebar
@@ -561,21 +581,21 @@ const App: React.FC = () => {
       />
 
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-white/90 dark:bg-[#191919]/90 border-b border-[#e9e9e7] dark:border-[#2e2e2e] backdrop-blur-sm print:hidden">
+      <header className="sticky top-0 z-30 bg-white/90 dark:bg-[#13111f]/90 backdrop-blur-sm border-b-2 border-violet-100 dark:border-violet-900/20 print:hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="p-2 rounded-lg text-slate-500 hover:text-[#1a1a1a] dark:hover:text-[#e9e9e9] hover:bg-[#f7f7f5] dark:hover:bg-[#2a2a2a] transition-colors"
+              className="p-2 rounded-xl text-slate-500 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors"
               aria-label="Open navigation"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
             <button
               onClick={() => setView('landing')}
-              className="flex items-center gap-2 text-sm font-semibold text-[#1a1a1a] dark:text-[#e9e9e9] hover:opacity-75 transition-opacity"
+              className="flex items-center gap-2 font-black text-slate-900 dark:text-white hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
             >
               <Logo />
             </button>
@@ -586,14 +606,14 @@ const App: React.FC = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setView('dashboard')}
-                className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                className="text-xs font-bold text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
               >
                 {langKey === 'tr' ? 'Ana Sayfa' : 'Home'}
               </button>
               {view !== 'dashboard' && (
                 <>
                   <span className="text-slate-300 dark:text-slate-600">/</span>
-                  <span className="text-xs font-medium text-slate-600 dark:text-slate-300 capitalize">
+                  <span className="text-xs font-black text-violet-600 dark:text-violet-400 capitalize">
                     {view.replace('-', ' ')}
                   </span>
                 </>
@@ -607,11 +627,11 @@ const App: React.FC = () => {
         {renderContent()}
       </main>
 
-      <footer className="border-t border-[#e9e9e7] dark:border-[#2e2e2e] bg-white dark:bg-[#212121] mt-auto print:hidden">
+      <footer className="bg-white dark:bg-[#1e1b2e] border-t-2 border-violet-100 dark:border-violet-900/20 mt-auto print:hidden">
         <div className="max-w-7xl mx-auto px-4 py-6 text-center">
-          <p className="text-xs text-slate-400 dark:text-slate-500">
+          <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">
             Built with React, TypeScript & Tailwind by{' '}
-            <a href="https://instagram.com/can_akalin" target="_blank" rel="noopener noreferrer" className="font-medium text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+            <a href="https://instagram.com/can_akalin" target="_blank" rel="noopener noreferrer" className="font-black text-violet-600 dark:text-violet-400 hover:underline">
               Can AKALIN
             </a>
           </p>
