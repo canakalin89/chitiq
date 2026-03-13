@@ -107,12 +107,8 @@ const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
         grad.addColorStop(0, 'rgba(244, 63, 94, 0.85)');  // rose-500
         grad.addColorStop(1, 'rgba(139, 92, 246, 0.85)'); // violet-500
         ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.roundRect(canvas.width / 2 + x, centerY, barWidth, barHeight, barWidth / 2);
-        ctx.fill();
-        ctx.beginPath();
-        ctx.roundRect(canvas.width / 2 - x - barWidth, centerY, barWidth, barHeight, barWidth / 2);
-        ctx.fill();
+        ctx.fillRect(canvas.width / 2 + x, centerY, barWidth, barHeight);
+        ctx.fillRect(canvas.width / 2 - x - barWidth, centerY, barWidth, barHeight);
         x += barWidth + 3;
       }
     };
@@ -179,9 +175,7 @@ const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
     const audioContext = new AudioContextClass();
     audioContextRef.current = audioContext;
     if (audioContext.state === 'suspended') await audioContext.resume();
-    setError(null); setHasStarted(true); setIsRecording(true);
     isRecordingRef.current = true;
-    setLiveTranscript('');
     liveTranscriptRef.current = '';
     startSpeechRecognition();
     try {
@@ -199,7 +193,9 @@ const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
       const silentDest = audioContext.createMediaStreamDestination();
       source.connect(analyser);
       analyser.connect(silentDest);
-      // drawVisualizer is started by the useEffect that watches isRecording
+      // Set state AFTER analyser is ready so the useEffect finds it
+      setError(null); setHasStarted(true); setIsRecording(true);
+      setLiveTranscript('');
     } catch { setError(t('errors.generic')); cleanup(); }
   };
 
