@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SPEAKING_TOPICS } from '../constants';
 import { StudentInfo, ClassRoom } from '../types';
@@ -33,17 +33,8 @@ const ExamMode: React.FC<ExamModeProps> = ({ classes, onComplete, onCancel, mode
   const [rotation, setRotation] = useState(0);
   const [confetti, setConfetti] = useState<any[]>([]);
 
-  // Practice quick-pick state
+  // Practice state
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [isPickAnimating, setIsPickAnimating] = useState(false);
-  const allTopicsFlat = useMemo(
-    () => Object.values(SPEAKING_TOPICS[i18n.language.startsWith('tr') ? 'tr' : 'en']).flat() as string[],
-    [i18n.language]
-  );
-  const [pickedTopic, setPickedTopic] = useState<string>(() => {
-    const all = Object.values(SPEAKING_TOPICS[i18n.language.startsWith('tr') ? 'tr' : 'en']).flat();
-    return all[Math.floor(Math.random() * all.length)] as string;
-  });
   
   const audioCtxRef = useRef<AudioContext | null>(null);
   const lastTickAngleRef = useRef(0);
@@ -67,31 +58,38 @@ const ExamMode: React.FC<ExamModeProps> = ({ classes, onComplete, onCancel, mode
     return acc;
   }, {} as Record<string, string[]>);
 
-  const pickRandomTopic = (category: string | null) => {
-    const pool: readonly string[] = category
-      ? (topicsData as Record<string, readonly string[]>)[category] ?? allTopicsFlat
-      : allTopicsFlat;
-    setIsPickAnimating(true);
-    setTimeout(() => {
-      let next = pool[Math.floor(Math.random() * pool.length)] as string;
-      if (pool.length > 1 && next === pickedTopic) {
-        next = pool[(pool.indexOf(pickedTopic) + 1) % pool.length] as string;
-      }
-      setPickedTopic(next);
-      setIsPickAnimating(false);
-    }, 180);
+  const handlePracticeStart = () => {
+    if (!selectedQuestions.length) return;
+    setWinner(selectedQuestions[Math.floor(Math.random() * selectedQuestions.length)]);
+    setStep('wheel');
   };
 
-  const renderPracticeQuickPick = () => {
+  const handlePracticeRepick = () => {
+    if (selectedQuestions.length <= 1) return;
+    let idx = Math.floor(Math.random() * selectedQuestions.length);
+    while (selectedQuestions[idx] === winner)
+      idx = Math.floor(Math.random() * selectedQuestions.length);
+    setWinner(selectedQuestions[idx]);
+  };
+
+  const renderPracticeSelect = () => {
     const isTr = langKey === 'tr';
     const categories = Object.keys(topicsData);
-    const topicTheme = categories.find(cat =>
-      (topicsData as Record<string, readonly string[]>)[cat]?.includes(pickedTopic)
-    ) ?? '';
     const chipLabel = (cat: string) => cat.includes(':') ? cat.split(':')[1].trim() : cat;
 
+    const visibleTopics: Array<{ question: string }> = [];
+    const categoriesToShow = selectedCategory ? [selectedCategory] : categories;
+    categoriesToShow.forEach(theme => {
+      const questions = (topicsData as Record<string, string[]>)[theme] || [];
+      questions.forEach(q => {
+        if (!searchQuery || q.toLowerCase().includes(searchQuery.toLowerCase())) {
+          visibleTopics.push({ question: q });
+        }
+      });
+    });
+
     return (
-      <div className="max-w-lg mx-auto space-y-5 animate-fade-in px-1 pb-10">
+      <div className="max-w-lg mx-auto space-y-4 animate-fade-in px-1 pb-10">
         {/* Header */}
         <div className="flex items-center gap-3">
           <button onClick={onCancel} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
@@ -99,10 +97,10 @@ const ExamMode: React.FC<ExamModeProps> = ({ classes, onComplete, onCancel, mode
           </button>
           <div>
             <h1 className="text-2xl font-black text-slate-900 dark:text-white leading-none">
-              {isTr ? 'Konu Çek' : 'Topic Draw'}
+              {isTr ? 'Konu Seç' : 'Select Topic'}
             </h1>
             <p className="text-xs text-slate-400 font-medium mt-0.5">
-              {isTr ? 'Rastgele bir konu seç, hemen başla.' : 'Pick a random topic, start right away.'}
+              {isTr ? 'Havuzunu oluştur, rastgele çek.' : 'Build your pool, draw randomly.'}
             </p>
           </div>
         </div>
@@ -110,7 +108,7 @@ const ExamMode: React.FC<ExamModeProps> = ({ classes, onComplete, onCancel, mode
         {/* Category chips */}
         <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
           <button
-            onClick={() => { setSelectedCategory(null); pickRandomTopic(null); }}
+            onClick={() => setSelectedCategory(null)}
             className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-black transition-all ${
               selectedCategory === null
                 ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/30'
@@ -122,7 +120,7 @@ const ExamMode: React.FC<ExamModeProps> = ({ classes, onComplete, onCancel, mode
           {categories.map(cat => (
             <button
               key={cat}
-              onClick={() => { setSelectedCategory(cat); pickRandomTopic(cat); }}
+              onClick={() => setSelectedCategory(cat)}
               className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-black transition-all ${
                 selectedCategory === cat
                   ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/30'
@@ -134,38 +132,139 @@ const ExamMode: React.FC<ExamModeProps> = ({ classes, onComplete, onCancel, mode
           ))}
         </div>
 
+        {/* Search */}
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={isTr ? 'Konu ara...' : 'Search topics...'}
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-violet-500 outline-none transition-all text-sm"
+          />
+        </div>
+
+        {/* Question list */}
+        <div className="space-y-1 max-h-[320px] overflow-y-auto pr-1 custom-scrollbar">
+          {visibleTopics.map(({ question }, idx) => (
+            <label
+              key={idx}
+              className={`flex items-start gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                selectedQuestions.includes(question)
+                  ? 'bg-violet-50 border-violet-300 dark:bg-violet-900/20 dark:border-violet-700 text-violet-700 dark:text-violet-300'
+                  : 'border-transparent hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400'
+              }`}
+            >
+              <div className={`mt-0.5 w-4 h-4 rounded flex-shrink-0 flex items-center justify-center transition-colors ${
+                selectedQuestions.includes(question) ? 'bg-violet-600 text-white' : 'bg-slate-200 dark:bg-slate-700'
+              }`}>
+                {selectedQuestions.includes(question) && (
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
+                    <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </div>
+              <input type="checkbox" checked={selectedQuestions.includes(question)} onChange={() => handleToggleQuestion(question)} className="hidden" />
+              <span className="text-xs font-bold leading-tight">{question}</span>
+            </label>
+          ))}
+        </div>
+
+        {/* Custom question */}
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={customQuestion}
+            onChange={(e) => setCustomQuestion(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleAddCustom()}
+            placeholder={isTr ? 'Özel soru ekle...' : 'Add custom question...'}
+            className="flex-1 px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-violet-500 outline-none transition-all text-sm"
+          />
+          <button
+            onClick={handleAddCustom}
+            disabled={!customQuestion.trim()}
+            className="px-4 py-2.5 bg-violet-600 text-white rounded-xl font-bold text-sm hover:bg-violet-700 disabled:opacity-50 transition-all"
+          >
+            +
+          </button>
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
+          <span className="text-sm font-bold text-slate-400">
+            {selectedQuestions.length} {isTr ? 'soru seçildi' : 'selected'}
+          </span>
+          <button
+            onClick={handlePracticeStart}
+            disabled={selectedQuestions.length < 1}
+            className="px-6 py-3 rounded-2xl font-black text-sm text-white transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 disabled:hover:scale-100 flex items-center gap-2"
+            style={{ background: selectedQuestions.length >= 1 ? 'linear-gradient(135deg, #7c3aed, #e11d48)' : '#94a3b8' }}
+          >
+            {isTr ? 'Rastgele Çek' : 'Draw Random'}
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderPracticeResult = () => {
+    const isTr = langKey === 'tr';
+    const categories = Object.keys(topicsData);
+    const topicTheme = categories.find(cat =>
+      (topicsData as Record<string, readonly string[]>)[cat]?.includes(winner ?? '')
+    ) ?? '';
+
+    return (
+      <div className="max-w-lg mx-auto space-y-5 animate-fade-in px-1 pb-10">
+        {/* Header */}
+        <div className="flex items-center gap-3">
+          <button onClick={() => setStep('setup')} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
+            <BackIcon className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+          </button>
+          <div>
+            <h1 className="text-2xl font-black text-slate-900 dark:text-white leading-none">
+              {isTr ? 'Seçilen Konu' : 'Selected Topic'}
+            </h1>
+            <p className="text-xs text-slate-400 font-medium mt-0.5">
+              {isTr ? 'Çekilen konunla başla veya tekrar çek.' : 'Start with this topic or draw again.'}
+            </p>
+          </div>
+        </div>
+
         {/* Topic card */}
-        <div
-          className={`card p-7 space-y-3 transition-all duration-150 ${
-            isPickAnimating ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
-          }`}
-        >
+        <div className="card p-8 space-y-3 animate-bounce-in">
           {topicTheme && (
             <p className="text-[10px] font-black text-violet-500 uppercase tracking-widest">
               {topicTheme}
             </p>
           )}
           <p className="text-xl font-black text-slate-900 dark:text-white leading-snug">
-            "{pickedTopic}"
+            "{winner}"
           </p>
         </div>
 
-        {/* Draw new */}
+        {/* Actions */}
         <button
-          onClick={() => pickRandomTopic(selectedCategory)}
-          disabled={isPickAnimating}
-          className="w-full py-3.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-2xl font-black transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+          onClick={handlePracticeRepick}
+          disabled={selectedQuestions.length <= 1}
+          className="w-full py-3.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-2xl font-black transition-all flex items-center justify-center gap-2 disabled:opacity-40"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
           </svg>
-          {isTr ? 'Yeni Konu Çek' : 'Draw New Topic'}
+          {isTr ? 'Farklı Konu' : 'Different Topic'}
         </button>
 
-        {/* Start */}
         <button
-          onClick={() => pickedTopic && onComplete(pickedTopic, null)}
-          disabled={!pickedTopic || isPickAnimating}
+          onClick={() => winner && onComplete(winner, null)}
+          disabled={!winner}
           className="w-full py-4 rounded-2xl font-black text-base text-white transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
           style={{ background: 'linear-gradient(135deg, #7c3aed, #e11d48)' }}
         >
@@ -313,7 +412,7 @@ const ExamMode: React.FC<ExamModeProps> = ({ classes, onComplete, onCancel, mode
   };
 
   const isSetupValid = () => {
-    if (mode === 'practice') return selectedQuestions.length >= 2;
+    if (mode === 'practice') return selectedQuestions.length >= 1;
     return selectedQuestions.length >= 2 && studentInfo.firstName && studentInfo.lastName && studentInfo.studentNumber;
   };
 
@@ -670,7 +769,9 @@ const ExamMode: React.FC<ExamModeProps> = ({ classes, onComplete, onCancel, mode
     );
   };
 
-  if (mode === 'practice') return renderPracticeQuickPick();
+  if (mode === 'practice') {
+    return step === 'setup' ? renderPracticeSelect() : renderPracticeResult();
+  }
   return <div className="w-full pb-20">{step === 'setup' ? renderSetup() : renderWheel()}</div>;
 };
 
