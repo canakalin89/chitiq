@@ -40,6 +40,14 @@ const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
 
   useEffect(() => { return () => cleanup(); }, []);
 
+  // Start the visualizer after React re-renders the canvas into the DOM
+  useEffect(() => {
+    if (isRecording && analyserRef.current && canvasRef.current) {
+      drawVisualizer();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isRecording]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
@@ -191,7 +199,7 @@ const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
       const silentDest = audioContext.createMediaStreamDestination();
       source.connect(analyser);
       analyser.connect(silentDest);
-      drawVisualizer();
+      // drawVisualizer is started by the useEffect that watches isRecording
     } catch { setError(t('errors.generic')); cleanup(); }
   };
 
