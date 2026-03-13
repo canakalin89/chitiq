@@ -91,10 +91,14 @@ const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const barWidth = (canvas.width / bufferLength) * 2.5;
       let x = 0;
-      ctx.fillStyle = 'rgba(251, 113, 133, 0.6)'; // rose-400
       for (let i = 0; i < bufferLength; i++) {
-        const barHeight = (dataArray[i] / 255) * canvas.height * 0.85;
+        const raw = dataArray[i] / 255;
+        const barHeight = Math.max(4, raw * canvas.height * 0.95);
         const centerY = canvas.height / 2 - barHeight / 2;
+        const grad = ctx.createLinearGradient(0, centerY + barHeight, 0, centerY);
+        grad.addColorStop(0, 'rgba(244, 63, 94, 0.85)');  // rose-500
+        grad.addColorStop(1, 'rgba(139, 92, 246, 0.85)'); // violet-500
+        ctx.fillStyle = grad;
         ctx.beginPath();
         ctx.roundRect(canvas.width / 2 + x, centerY, barWidth, barHeight, barWidth / 2);
         ctx.fill();
@@ -410,8 +414,8 @@ const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
       {/* Waveform + live transcript */}
       <div className="flex-1 flex flex-col items-center justify-center p-6 gap-4">
         <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 italic text-center">"{topic}"</p>
-        <div className="relative w-full h-16">
-          <canvas ref={canvasRef} width={800} height={64} className="w-full h-full opacity-90 pointer-events-none" />
+        <div className="relative w-full h-32">
+          <canvas ref={canvasRef} width={800} height={128} className="w-full h-full pointer-events-none" />
         </div>
         {liveTranscript ? (
           <div className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl px-4 py-3 max-h-28 overflow-y-auto border border-slate-200 dark:border-slate-700">
