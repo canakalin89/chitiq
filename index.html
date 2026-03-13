@@ -6,11 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ChitIQ - Speaking Evaluator</title>
     <link rel="icon" type="image/png" href="https://azizsancaranadolu.meb.k12.tr/meb_iys_dosyalar/59/11/765062/dosyalar/2025_11/03215750_speaksmartaltlogo.png" />
-    
+
     <!-- Google Fonts: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- Theme Initialization -->
     <script>
@@ -31,30 +31,31 @@
       /* Custom Scrollbar */
       ::-webkit-scrollbar { width: 6px; height: 6px; }
       ::-webkit-scrollbar-track { background: transparent; }
-      ::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 3px; }
-      .dark ::-webkit-scrollbar-thumb { background: #3a3a3a; }
-      ::-webkit-scrollbar-thumb:hover { background: #b0b0b0; }
-      .dark ::-webkit-scrollbar-thumb:hover { background: #525252; }
+      ::-webkit-scrollbar-thumb { background: #c4b5fd; border-radius: 3px; }
+      .dark ::-webkit-scrollbar-thumb { background: #4c1d95; }
+      ::-webkit-scrollbar-thumb:hover { background: #a78bfa; }
 
-      /* Card Utility — Notion-style clean surface */
+      /* Base Card — white, rounded-2xl, subtle shadow */
       .card {
         background: #ffffff;
-        border: 1px solid #e9e9e7;
-        border-radius: 12px;
+        border-radius: 20px;
+        box-shadow: 0 2px 12px rgba(109, 40, 217, 0.06), 0 1px 3px rgba(0,0,0,0.04);
+        border: none;
       }
       .dark .card {
-        background: #212121;
-        border: 1px solid #2e2e2e;
+        background: #1e1b2e;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.3);
       }
 
       /* Legacy .glass → same as .card for backward compat */
       .glass {
         background: #ffffff;
-        border: 1px solid #e9e9e7;
+        border-radius: 20px;
+        box-shadow: 0 2px 12px rgba(109, 40, 217, 0.06), 0 1px 3px rgba(0,0,0,0.04);
       }
       .dark .glass {
-        background: #212121;
-        border: 1px solid #2e2e2e;
+        background: #1e1b2e;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.3);
       }
 
       /* Sidebar slide-in animation */
@@ -66,26 +67,41 @@
         animation: slideInLeft 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
       }
 
-      /* Fade-in (kept, shortened) */
+      /* Fade-in */
       @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(4px); }
+        from { opacity: 0; transform: translateY(6px); }
         to   { opacity: 1; transform: translateY(0); }
       }
-      .animate-fade-in { animation: fadeIn 0.2s ease forwards; }
+      .animate-fade-in { animation: fadeIn 0.25s ease forwards; }
 
-      /* Slide-up (kept for modal) */
+      /* Bounce-in (for hero elements) */
+      @keyframes bounceIn {
+        0%   { opacity: 0; transform: scale(0.85) translateY(12px); }
+        60%  { opacity: 1; transform: scale(1.03) translateY(-4px); }
+        100% { transform: scale(1) translateY(0); }
+      }
+      .animate-bounce-in { animation: bounceIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+      /* Slide-up (for modals) */
       @keyframes slideUp {
-        from { opacity: 0; transform: translateY(12px); }
+        from { opacity: 0; transform: translateY(16px); }
         to   { opacity: 1; transform: translateY(0); }
       }
-      .animate-slide-up { animation: slideUp 0.25s ease forwards; }
+      .animate-slide-up { animation: slideUp 0.3s ease forwards; }
 
-      /* Confetti (kept for compatibility) */
+      /* Confetti */
       @keyframes confettiFall {
         0%   { transform: translateY(-10px) rotate(0deg);   opacity: 1; }
         100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
       }
       .animate-confetti { animation: confettiFall 3s ease-out forwards; }
+
+      /* Pop-in for staggered items */
+      @keyframes popIn {
+        from { opacity: 0; transform: scale(0.9); }
+        to   { opacity: 1; transform: scale(1); }
+      }
+      .animate-pop-in { animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
 
       /* Print */
       @media print {
@@ -100,7 +116,7 @@
       }
     </style>
 </head>
-  <body class="bg-[#f7f7f5] text-[#1a1a1a] dark:bg-[#191919] dark:text-[#e9e9e9] antialiased transition-colors duration-300 font-sans selection:bg-indigo-100 selection:text-indigo-900 dark:selection:bg-indigo-900/40 dark:selection:text-indigo-200">
+  <body class="bg-[#f0eeff] text-slate-900 dark:bg-[#13111f] dark:text-slate-100 antialiased transition-colors duration-300 font-sans selection:bg-violet-200 selection:text-violet-900 dark:selection:bg-violet-900/40 dark:selection:text-violet-200">
     <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>

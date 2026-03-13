@@ -87,7 +87,7 @@ const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const barWidth = (canvas.width / bufferLength) * 2.5;
       let x = 0;
-      ctx.fillStyle = 'rgba(99, 102, 241, 0.5)';
+      ctx.fillStyle = 'rgba(251, 113, 133, 0.6)'; // rose-400
       for (let i = 0; i < bufferLength; i++) {
         const barHeight = (dataArray[i] / 255) * canvas.height * 0.85;
         const centerY = canvas.height / 2 - barHeight / 2;
@@ -202,17 +202,21 @@ const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
   // ── Error ──────────────────────────────────────────────────────────────────
   if (error) {
     return (
-      <div className="card p-8 max-w-md mx-auto text-center animate-fade-in">
-        <div className="w-12 h-12 bg-rose-50 dark:bg-rose-900/20 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-          </svg>
+      <div className="card overflow-hidden animate-fade-in">
+        <div className="bg-rose-500 px-6 py-4">
+          <p className="font-black text-white text-base">{t('errors.micTitle')}</p>
         </div>
-        <h3 className="text-base font-semibold text-[#1a1a1a] dark:text-[#e9e9e9] mb-2">{t('errors.micTitle')}</h3>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mb-5">{error}</p>
-        <div className="flex gap-2 justify-center">
-          <button onClick={onCancel} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-[#f7f7f5] dark:bg-[#2a2a2a] border border-[#e9e9e7] dark:border-[#3a3a3a] rounded-lg hover:bg-slate-100 dark:hover:bg-[#333] transition-colors">{t('common.goBack')}</button>
-          <button onClick={() => window.location.reload()} className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors">{t('common.retry')}</button>
+        <div className="p-8 text-center">
+          <div className="w-14 h-14 bg-rose-100 dark:bg-rose-900/30 text-rose-500 rounded-3xl flex items-center justify-center mx-auto mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-7 h-7">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            </svg>
+          </div>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-5 font-medium">{error}</p>
+          <div className="flex gap-3 justify-center">
+            <button onClick={onCancel} className="px-5 py-2.5 text-sm font-black text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-2xl hover:scale-105 transition-all">{t('common.goBack')}</button>
+            <button onClick={() => window.location.reload()} className="px-5 py-2.5 text-sm font-black text-white bg-violet-600 hover:bg-violet-700 rounded-2xl hover:scale-105 transition-all">{t('common.retry')}</button>
+          </div>
         </div>
       </div>
     );
@@ -222,13 +226,13 @@ const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
   if (isTranscribing) {
     return (
       <div className="card min-h-[400px] flex flex-col items-center justify-center gap-5 animate-fade-in">
-        <div className="relative w-14 h-14">
-          <div className="absolute inset-0 rounded-full border-2 border-slate-200 dark:border-[#2e2e2e]"></div>
-          <div className="absolute inset-0 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin"></div>
+        <div className="relative w-16 h-16">
+          <div className="absolute inset-0 rounded-full border-4 border-slate-100 dark:border-slate-800"></div>
+          <div className="absolute inset-0 rounded-full border-4 border-violet-500 border-t-transparent animate-spin"></div>
         </div>
         <div className="text-center">
-          <p className="text-sm font-semibold text-[#1a1a1a] dark:text-[#e9e9e9]">{t('recorder.transcribing') || (isTr ? 'Konuşma analiz ediliyor...' : 'Transcribing your speech...')}</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t('recorder.transcribingHint') || (isTr ? 'Bir saniye...' : 'Just a moment.')}</p>
+          <p className="text-base font-black text-slate-900 dark:text-white">{t('recorder.transcribing') || (isTr ? 'Konuşma analiz ediliyor...' : 'Transcribing your speech...')}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">{t('recorder.transcribingHint') || (isTr ? 'Bir saniye...' : 'Just a moment.')}</p>
         </div>
       </div>
     );
@@ -238,40 +242,40 @@ const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
   if (isReviewing) {
     return (
       <div className="card min-h-[480px] flex flex-col animate-fade-in overflow-hidden">
-        {/* Header */}
-        <div className="px-6 py-4 border-b border-[#e9e9e7] dark:border-[#2e2e2e] flex items-center gap-3">
-          <div className="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+        {/* Emerald header band */}
+        <div className="bg-emerald-500 px-6 py-4 flex items-center gap-3">
+          <div className="w-9 h-9 rounded-2xl bg-white/20 flex items-center justify-center">
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <span className="text-sm font-semibold text-[#1a1a1a] dark:text-[#e9e9e9]">{t('common.reviewRecording')}</span>
+          <span className="text-base font-black text-white">{t('common.reviewRecording')}</span>
         </div>
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 text-center italic">"{topic}"</p>
+          <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 text-center italic">"{topic}"</p>
 
-          <div className="bg-[#f7f7f5] dark:bg-[#2a2a2a] rounded-xl p-4 min-h-[120px]">
-            <p className="text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-2">{t('evaluation.transcription')}</p>
-            <p className="text-sm text-[#1a1a1a] dark:text-[#e9e9e9] leading-relaxed">
+          <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 min-h-[120px] border-2 border-slate-100 dark:border-slate-700">
+            <p className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-3">{t('evaluation.transcription')}</p>
+            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
               {transcription || <span className="text-slate-400 italic">{t('errors.noSpeechDetected')}</span>}
             </p>
           </div>
 
           {audioUrl && (
-            <audio src={audioUrl} controls className="w-full h-10 rounded-lg" />
+            <audio src={audioUrl} controls className="w-full h-10 rounded-xl" />
           )}
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-[#e9e9e7] dark:border-[#2e2e2e] flex gap-3">
-          <button onClick={handleRetry} className="flex-1 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 bg-[#f7f7f5] dark:bg-[#2a2a2a] border border-[#e9e9e7] dark:border-[#3a3a3a] rounded-lg hover:bg-slate-100 dark:hover:bg-[#333] transition-colors">
+        <div className="px-6 py-4 bg-slate-50 dark:bg-slate-800/30 flex gap-3 border-t-2 border-slate-100 dark:border-slate-800">
+          <button onClick={handleRetry} className="flex-1 py-3 text-sm font-black text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all border-2 border-slate-200 dark:border-slate-700">
             {t('common.retry')} <span className="text-[10px] opacity-60 ml-1">R</span>
           </button>
-          <button onClick={handleEvaluate} className="flex-[2] py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors flex items-center justify-center gap-2">
+          <button onClick={handleEvaluate} className="flex-[2] py-3 text-sm font-black text-white bg-emerald-500 hover:bg-emerald-600 rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-emerald-200 dark:shadow-emerald-900/30 flex items-center justify-center gap-2">
             {t('common.evaluate')}
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
             <span className="text-[10px] opacity-70 ml-1">ENTER</span>
@@ -284,30 +288,37 @@ const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
   // ── Pre-record ─────────────────────────────────────────────────────────────
   if (!hasStarted) {
     return (
-      <div className="card min-h-[400px] flex flex-col items-center justify-center gap-6 p-8 animate-fade-in text-center">
-        <p className="text-base font-semibold text-[#1a1a1a] dark:text-[#e9e9e9] max-w-sm italic">"{topic}"</p>
+      <div className="card overflow-hidden animate-fade-in">
+        {/* Violet header band */}
+        <div className="bg-violet-600 px-6 py-5 text-center">
+          <p className="text-sm font-black text-white/80 mb-1 uppercase tracking-wide">{isTr ? 'Konu' : 'Topic'}</p>
+          <p className="text-lg font-black text-white italic">"{topic}"</p>
+        </div>
 
-        <div className="relative">
-          <div className="absolute -inset-3 bg-indigo-100 dark:bg-indigo-900/20 rounded-full blur-xl opacity-70"></div>
-          <button
-            onClick={startRecording}
-            className="relative w-24 h-24 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full flex flex-col items-center justify-center gap-1 shadow-lg transition-all active:scale-95"
-          >
-            <MicIcon className="w-8 h-8" />
-            <span className="text-[9px] font-bold uppercase tracking-wide opacity-90">SPACE</span>
+        {/* Body */}
+        <div className="flex flex-col items-center justify-center gap-6 p-10 text-center">
+          <div className="relative">
+            <div className="absolute -inset-4 bg-violet-100 dark:bg-violet-900/20 rounded-full blur-2xl opacity-60"></div>
+            <button
+              onClick={startRecording}
+              className="relative w-28 h-28 bg-violet-600 hover:bg-violet-700 text-white rounded-full flex flex-col items-center justify-center gap-1.5 shadow-xl shadow-violet-200 dark:shadow-violet-900/30 hover:scale-110 active:scale-95 transition-all"
+            >
+              <MicIcon className="w-10 h-10" />
+              <span className="text-[9px] font-black uppercase tracking-wide opacity-90">SPACE</span>
+            </button>
+          </div>
+
+          <div className="space-y-1">
+            <p className="text-base font-black text-slate-900 dark:text-white">
+              💪 {isTr ? 'Hazır mısın? Al nefesini ve başla!' : 'Ready? Take a breath and go!'}
+            </p>
+            <p className="text-sm text-slate-400 dark:text-slate-500 font-medium">{isTr ? 'Maks 3 dakika' : 'Up to 3 minutes'}</p>
+          </div>
+
+          <button onClick={onCancel} className="text-sm text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 font-semibold transition-colors">
+            {t('common.cancel')}
           </button>
         </div>
-
-        <div className="text-center space-y-1">
-          <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
-            💪 {isTr ? 'Hazır mısın? Al nefesini ve başla!' : 'Ready? Take a breath and go!'}
-          </p>
-          <p className="text-xs text-slate-400 dark:text-slate-500">{isTr ? 'Maks 3 dakika' : 'Up to 3 minutes'}</p>
-        </div>
-
-        <button onClick={onCancel} className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
-          {t('common.cancel')}
-        </button>
       </div>
     );
   }
@@ -315,25 +326,25 @@ const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
   // ── Recording ──────────────────────────────────────────────────────────────
   return (
     <div className="card min-h-[400px] flex flex-col animate-fade-in overflow-hidden">
-      {/* Header */}
-      <div className="px-6 py-4 border-b border-[#e9e9e7] dark:border-[#2e2e2e] flex items-center justify-between">
+      {/* Rose header band */}
+      <div className="bg-rose-500 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center">
-            <div className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
+          <div className="flex items-center gap-2">
+            <div className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
             </div>
+            <span className="text-base font-black text-white">{t('dashboard.recording')}</span>
           </div>
-          <span className="text-sm font-semibold text-[#1a1a1a] dark:text-[#e9e9e9]">{t('dashboard.recording')}</span>
         </div>
 
         <div className="flex flex-col items-end gap-1">
-          <span className="font-mono text-lg font-semibold text-[#1a1a1a] dark:text-[#e9e9e9] tabular-nums">
-            {formatTime(timer)} <span className="text-slate-400 text-sm font-normal">/ 03:00</span>
+          <span className="font-mono text-lg font-black text-white tabular-nums">
+            {formatTime(timer)} <span className="text-white/70 text-sm font-bold">/ 03:00</span>
           </span>
-          <div className="w-32 h-1 bg-[#e9e9e7] dark:bg-[#2e2e2e] rounded-full overflow-hidden">
+          <div className="w-28 h-1.5 bg-white/30 rounded-full overflow-hidden">
             <div
-              className="h-full bg-indigo-500 rounded-full transition-all duration-1000"
+              className="h-full bg-white rounded-full transition-all duration-1000"
               style={{ width: `${(timer / MAX_RECORDING_TIME) * 100}%` }}
             />
           </div>
@@ -342,18 +353,18 @@ const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
 
       {/* Waveform */}
       <div className="flex-1 flex flex-col items-center justify-center p-6 gap-4">
-        <p className="text-sm font-medium text-slate-500 dark:text-slate-400 italic text-center">"{topic}"</p>
+        <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 italic text-center">"{topic}"</p>
         <div className="relative w-full h-16">
           <canvas ref={canvasRef} width={800} height={64} className="w-full h-full opacity-90 pointer-events-none" />
         </div>
       </div>
 
       {/* Footer */}
-      <div className="px-6 py-4 border-t border-[#e9e9e7] dark:border-[#2e2e2e] flex items-center justify-between">
-        <button onClick={onCancel} className="text-sm font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
+      <div className="px-6 py-4 bg-slate-50 dark:bg-slate-800/30 border-t-2 border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <button onClick={onCancel} className="text-sm font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
           {t('common.cancel')}
         </button>
-        <button onClick={stopRecording} className="flex items-center gap-2 px-5 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-lg text-sm font-semibold transition-colors shadow-sm">
+        <button onClick={stopRecording} className="flex items-center gap-2 px-6 py-3 bg-rose-500 hover:bg-rose-600 text-white rounded-2xl text-sm font-black transition-all shadow-lg shadow-rose-200 dark:shadow-rose-900/30 hover:scale-105 active:scale-95">
           <StopIcon className="w-4 h-4 fill-current" />
           {t('dashboard.stopRecording')}
           <span className="text-[10px] opacity-75 ml-1">SPACE</span>
