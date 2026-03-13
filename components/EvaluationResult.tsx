@@ -221,14 +221,14 @@ const EvaluationResult: React.FC<EvaluationResultProps> = ({
                   onClick={() => setExpanded(isOpen ? null : key)}
                 >
                   <span className={`flex-shrink-0 text-xs font-bold px-2 py-0.5 rounded-md ${colors.badge}`}>
-                    {score as number}
+                    {score as number}/20
                   </span>
                   <span className="flex-1 text-sm font-medium text-slate-700 dark:text-slate-200">
                     {/* @ts-ignore */}
                     {CRITERIA[langKey][key]}
                   </span>
                   <div className="w-24 h-1 bg-[#e9e9e7] dark:bg-[#2e2e2e] rounded-full overflow-hidden flex-shrink-0">
-                    <div className={`h-full rounded-full ${colors.bar} transition-all duration-700`} style={{ width: `${score}%` }} />
+                    <div className={`h-full rounded-full ${colors.bar} transition-all duration-700`} style={{ width: `${((score as number) / 20) * 100}%` }} />
                   </div>
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
                     className={`w-4 h-4 flex-shrink-0 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
@@ -267,10 +267,10 @@ const EvaluationResult: React.FC<EvaluationResultProps> = ({
               <div className="flex justify-between items-center mb-0.5">
                 {/* @ts-ignore */}
                 <h4 className="text-[6.5px] font-bold text-indigo-700 uppercase tracking-tighter">{CRITERIA[langKey][key]}</h4>
-                <span className="text-[7px] font-bold text-slate-800">{score as number}</span>
+                <span className="text-[7px] font-bold text-slate-800">{score as number}/20</span>
               </div>
               <div className="w-full bg-slate-100 rounded-full h-0.5 mb-0.5 overflow-hidden">
-                <div className="h-full rounded-full bg-indigo-500" style={{ width: `${score}%` }} />
+                <div className="h-full rounded-full bg-indigo-500" style={{ width: `${((score as number) / 20) * 100}%` }} />
               </div>
               {/* @ts-ignore */}
               <p className="text-[6px] text-slate-600 leading-tight line-clamp-3">{data.feedback[key]}</p>

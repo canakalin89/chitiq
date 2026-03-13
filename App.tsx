@@ -57,7 +57,9 @@ const App: React.FC = () => {
     } catch { return []; }
   });
 
-  const [currentTopic, setCurrentTopic] = useState<string>('');
+  const [currentTopic, setCurrentTopic] = useState<string>(() => {
+    return localStorage.getItem('lastTopic') || '';
+  });
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [evaluationData, setEvaluationData] = useState<EvaluationResultData | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -84,6 +86,7 @@ const App: React.FC = () => {
   }, [theme]);
 
   useEffect(() => { localStorage.setItem('history', JSON.stringify(history)); }, [history]);
+  useEffect(() => { if (currentTopic) localStorage.setItem('lastTopic', currentTopic); }, [currentTopic]);
   useEffect(() => { localStorage.setItem('classes', JSON.stringify(classes)); }, [classes]);
 
   // URL Hash: shared result
@@ -392,6 +395,7 @@ const App: React.FC = () => {
                   onStart={() => { setIsExamMode(false); setView('recorder'); }}
                   isStudentMode={isStudentMode}
                   setIsStudentMode={setIsStudentMode}
+                  initialTopic={currentTopic}
                 />
 
                 {/* Big mode cards */}
@@ -550,6 +554,20 @@ const App: React.FC = () => {
         return evaluationData ? (
           <div className="max-w-3xl mx-auto py-4 animate-fade-in print:m-0 print:p-0">
             <EvaluationResult data={evaluationData} audioBlob={audioBlob} onBack={() => { setView('dashboard'); setIsExamMode(false); setStudentInfo(null); }} isExam={isExamMode} studentInfo={studentInfo} />
+            {/* Try again with same topic */}
+            {!isExamMode && currentTopic && (
+              <div className="mt-4 flex justify-center print:hidden">
+                <button
+                  onClick={() => { setAudioBlob(null); setEvaluationData(null); setView('recorder'); }}
+                  className="inline-flex items-center gap-2.5 px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-2xl font-black text-sm transition-all shadow-lg shadow-violet-200 dark:shadow-violet-900/30 hover:scale-105 active:scale-95"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                  </svg>
+                  {langKey === 'tr' ? 'Aynı konuyla tekrar dene' : 'Try again with same topic'}
+                </button>
+              </div>
+            )}
           </div>
         ) : null;
 

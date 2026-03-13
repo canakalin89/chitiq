@@ -8,12 +8,13 @@ interface TopicSelectorProps {
   onStart: () => void;
   isStudentMode: boolean;
   setIsStudentMode: (val: boolean) => void;
+  initialTopic?: string;
 }
 
-const TopicSelector: React.FC<TopicSelectorProps> = ({ onSelectTopic, onStart, isStudentMode, setIsStudentMode }) => {
+const TopicSelector: React.FC<TopicSelectorProps> = ({ onSelectTopic, onStart, isStudentMode, setIsStudentMode, initialTopic = '' }) => {
   const { t, i18n } = useTranslation();
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
-  const [customTopic, setCustomTopic] = useState('');
+  const [customTopic, setCustomTopic] = useState(initialTopic);
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedThemes, setExpandedThemes] = useState<string[]>([]);
 
