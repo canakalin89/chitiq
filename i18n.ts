@@ -117,7 +117,9 @@ const resources = {
         speakUp: "Please speak a bit louder!",
         listening: "Listening...",
         liveNote: "Live transcription is for reference; final assessment will be more accurate.",
-        liveLabel: "LIVE"
+        liveLabel: "LIVE",
+        transcribing: "Transcribing your speech...",
+        transcribingHint: "Just a moment."
       },
       feedback: {
         title: "Send Feedback",
@@ -342,7 +344,9 @@ const resources = {
         speakUp: "Lütfen biraz daha yüksek sesle konuşun!",
         listening: "Dinliyor...",
         liveNote: "Anlık deşifre referans amaçlıdır; nihai analiz çok daha hassas olacaktır.",
-        liveLabel: "CANLI"
+        liveLabel: "CANLI",
+        transcribing: "Konuşma analiz ediliyor...",
+        transcribingHint: "Bir saniye..."
       },
       feedback: {
         title: "Yorum Yapın",
