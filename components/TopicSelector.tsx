@@ -1,7 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SPEAKING_TOPICS } from '../constants';
 import { MicIcon } from '../icons/MicIcon';
+
+const THEME_EMOJIS: Record<string, string> = {
+  'School Life': '🏫', 'Okul Hayatı': '🏫',
+  'Family Life': '👨‍👩‍👧', 'Aile Hayatı': '👨‍👩‍👧',
+  'Universe & Future': '🚀', 'Evren ve Gelecek': '🚀',
+  'City & Country': '🏙️', 'Şehir ve Ülke': '🏙️',
+  'Sports & Hobbies': '⚽', 'Spor ve Hobiler': '⚽',
+  'Technology': '💻', 'Teknoloji': '💻',
+  'Environment': '🌿', 'Çevre': '🌿',
+  'Health & Lifestyle': '💪', 'Sağlık ve Yaşam': '💪',
+  'Arts & Culture': '🎨', 'Sanat ve Kültür': '🎨',
+  'Travel': '✈️', 'Seyahat': '✈️',
+  'Food & Drink': '🍕', 'Yemek': '🍕',
+  'Work & Career': '💼', 'Kariyer': '💼',
+  'Social Issues': '🤝', 'Sosyal Konular': '🤝',
+  'Media & Entertainment': '🎬', 'Medya': '🎬',
+};
 
 interface TopicSelectorProps {
   onSelectTopic: (topic: string) => void;
@@ -21,23 +38,6 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({ onSelectTopic, onStart, i
   const langKey = i18n.language.startsWith('tr') ? 'tr' : 'en';
   const topicsData = SPEAKING_TOPICS[langKey];
 
-  const themeEmojis: Record<string, string> = {
-    'School Life': '🏫', 'Okul Hayatı': '🏫',
-    'Family Life': '👨‍👩‍👧', 'Aile Hayatı': '👨‍👩‍👧',
-    'Universe & Future': '🚀', 'Evren ve Gelecek': '🚀',
-    'City & Country': '🏙️', 'Şehir ve Ülke': '🏙️',
-    'Sports & Hobbies': '⚽', 'Spor ve Hobiler': '⚽',
-    'Technology': '💻', 'Teknoloji': '💻',
-    'Environment': '🌿', 'Çevre': '🌿',
-    'Health & Lifestyle': '💪', 'Sağlık ve Yaşam': '💪',
-    'Arts & Culture': '🎨', 'Sanat ve Kültür': '🎨',
-    'Travel': '✈️', 'Seyahat': '✈️',
-    'Food & Drink': '🍕', 'Yemek': '🍕',
-    'Work & Career': '💼', 'Kariyer': '💼',
-    'Social Issues': '🤝', 'Sosyal Konular': '🤝',
-    'Media & Entertainment': '🎬', 'Medya': '🎬',
-  };
-
   const toggleTopic = (topic: string) => {
     setSelectedTopics(prev => {
       const next = prev.includes(topic) ? prev.filter(t => t !== topic) : [...prev, topic];
@@ -55,7 +55,7 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({ onSelectTopic, onStart, i
     setExpandedThemes(prev => prev.includes(theme) ? prev.filter(t => t !== theme) : [...prev, theme]);
   };
 
-  const filteredTopics = Object.entries(topicsData).reduce((acc, [theme, topics]) => {
+  const filteredTopics = useMemo(() => Object.entries(topicsData).reduce((acc, [theme, topics]) => {
     if (!searchQuery) {
       acc[theme] = topics;
     } else {
@@ -66,7 +66,7 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({ onSelectTopic, onStart, i
       }
     }
     return acc;
-  }, {} as Record<string, string[]>);
+  }, {} as Record<string, string[]>), [topicsData, searchQuery]);
 
   const finalTopic = selectedTopics.length > 0 ? selectedTopics.join(' & ') : customTopic;
 
@@ -108,7 +108,7 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({ onSelectTopic, onStart, i
                   className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-violet-50 dark:hover:bg-violet-900/10 transition-colors text-left"
                 >
                   <span className="text-xs font-black text-slate-600 dark:text-slate-300 uppercase tracking-wide">
-                    {themeEmojis[theme] ? `${themeEmojis[theme]} ` : ''}{theme}
+                    {THEME_EMOJIS[theme] ? `${THEME_EMOJIS[theme]} ` : ''}{theme}
                   </span>
                   <svg className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${expandedThemes.includes(theme) || searchQuery ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />

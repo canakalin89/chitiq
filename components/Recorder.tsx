@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StopIcon } from '../icons/StopIcon';
 import { MicIcon } from '../icons/MicIcon';
+import { blobToBase64 } from '../utils/audioUtils';
 
 interface RecorderProps {
   onStop: (audioBlob: Blob) => void;
@@ -108,11 +109,7 @@ const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
 
   const fetchTranscription = async (blob: Blob, mimeType: string): Promise<string> => {
     try {
-      const arrayBuffer = await blob.arrayBuffer();
-      const uint8Array = new Uint8Array(arrayBuffer);
-      let binary = '';
-      for (let i = 0; i < uint8Array.length; i++) binary += String.fromCharCode(uint8Array[i]);
-      const audioBase64 = btoa(binary);
+      const audioBase64 = await blobToBase64(blob);
       const response = await fetch('/api/transcribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

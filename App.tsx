@@ -6,23 +6,40 @@ import { Evaluation, EvaluationResultData, ExamSession, StudentInfo, ClassRoom, 
 import { evaluateSpeech } from './services/geminiService';
 import { blobToBase64 } from './utils/audioUtils';
 
-// Components
+// Components — small/always-needed loaded eagerly
 import TopicSelector from './components/TopicSelector';
 import Recorder from './components/Recorder';
-import EvaluationResult from './components/EvaluationResult';
 import RecentHistory from './components/RecentHistory';
-import HistoryView from './components/HistoryView';
-import ExamMode from './components/ExamMode';
-import ClassManager from './components/ClassManager';
-import AnalyticsDashboard from './components/AnalyticsDashboard';
 import FeedbackForm from './components/FeedbackForm';
 import OnboardingModal from './components/OnboardingModal';
 import Sidebar from './components/Sidebar';
+
+// Components — large views loaded lazily
+const EvaluationResult   = React.lazy(() => import('./components/EvaluationResult'));
+const HistoryView        = React.lazy(() => import('./components/HistoryView'));
+const ExamMode           = React.lazy(() => import('./components/ExamMode'));
+const ClassManager       = React.lazy(() => import('./components/ClassManager'));
+const AnalyticsDashboard = React.lazy(() => import('./components/AnalyticsDashboard'));
 
 // Icons
 import { Logo } from './icons/Logo';
 
 type ViewState = 'landing' | 'dashboard' | 'recorder' | 'evaluating' | 'result' | 'history' | 'exam-setup' | 'practice-wheel' | 'exam-result' | 'class-manager' | 'analytics';
+
+// Module-level constants — defined once, never recreated on render
+const CRITERIA_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+  rapport:      { bg: 'bg-amber-400',   text: 'text-white', border: 'border-amber-500' },
+  organisation: { bg: 'bg-sky-400',     text: 'text-white', border: 'border-sky-500' },
+  delivery:     { bg: 'bg-rose-400',    text: 'text-white', border: 'border-rose-500' },
+  languageUse:  { bg: 'bg-emerald-400', text: 'text-white', border: 'border-emerald-500' },
+  creativity:   { bg: 'bg-purple-400',  text: 'text-white', border: 'border-purple-500' },
+};
+
+const STEP_COLORS = [
+  { bg: 'bg-violet-500', text: 'text-white' },
+  { bg: 'bg-rose-500',   text: 'text-white' },
+  { bg: 'bg-emerald-500',text: 'text-white' },
+];
 
 const UserPlaceholder = ({ className }: { className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={className || "w-full h-full p-2"}>
@@ -85,9 +102,15 @@ const App: React.FC = () => {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  useEffect(() => { localStorage.setItem('history', JSON.stringify(history)); }, [history]);
+  useEffect(() => {
+    const id = setTimeout(() => localStorage.setItem('history', JSON.stringify(history)), 500);
+    return () => clearTimeout(id);
+  }, [history]);
   useEffect(() => { if (currentTopic) localStorage.setItem('lastTopic', currentTopic); }, [currentTopic]);
-  useEffect(() => { localStorage.setItem('classes', JSON.stringify(classes)); }, [classes]);
+  useEffect(() => {
+    const id = setTimeout(() => localStorage.setItem('classes', JSON.stringify(classes)), 500);
+    return () => clearTimeout(id);
+  }, [classes]);
 
   // URL Hash: shared result
   useEffect(() => {
@@ -234,20 +257,6 @@ const App: React.FC = () => {
     return t('dashboard.processingSteps.finalizing');
   };
 
-  // Criteria colors — structural (solid bg for playful look)
-  const criteriaColors: Record<string, { bg: string; text: string; border: string }> = {
-    rapport:      { bg: 'bg-amber-400',   text: 'text-white', border: 'border-amber-500' },
-    organisation: { bg: 'bg-sky-400',     text: 'text-white', border: 'border-sky-500' },
-    delivery:     { bg: 'bg-rose-400',    text: 'text-white', border: 'border-rose-500' },
-    languageUse:  { bg: 'bg-emerald-400', text: 'text-white', border: 'border-emerald-500' },
-    creativity:   { bg: 'bg-purple-400',  text: 'text-white', border: 'border-purple-500' },
-  };
-
-  const stepColors = [
-    { bg: 'bg-violet-500', text: 'text-white', num: 'bg-white/20 text-white' },
-    { bg: 'bg-rose-500',   text: 'text-white', num: 'bg-white/20 text-white' },
-    { bg: 'bg-emerald-500',text: 'text-white', num: 'bg-white/20 text-white' },
-  ];
 
   const renderContent = () => {
     switch (view) {
@@ -289,7 +298,7 @@ const App: React.FC = () => {
               <p className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-5 text-center">{t('landing.howItWorks')}</p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {[1, 2, 3].map((step) => {
-                  const color = stepColors[step - 1];
+                  const color = STEP_COLORS[step - 1];
                   return (
                     <div key={step} className={`${color.bg} rounded-3xl p-6 ${color.text} shadow-lg`}>
                       <div className="w-9 h-9 rounded-2xl bg-white/20 flex items-center justify-center mb-4">
@@ -308,7 +317,7 @@ const App: React.FC = () => {
               <p className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-5 text-center">{t('landing.criteriaTitle')}</p>
               <div className="flex flex-wrap justify-center gap-3">
                 {Object.keys(CRITERIA[langKey]).map((key) => {
-                  const c = criteriaColors[key];
+                  const c = CRITERIA_COLORS[key];
                   return (
                     <span
                       key={key}
@@ -642,7 +651,9 @@ const App: React.FC = () => {
       </header>
 
       <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6 print:p-0 print:max-w-none">
-        {renderContent()}
+        <React.Suspense fallback={null}>
+          {renderContent()}
+        </React.Suspense>
       </main>
 
       <footer className="bg-white dark:bg-[#1e1b2e] border-t-2 border-violet-100 dark:border-violet-900/20 mt-auto print:hidden">
