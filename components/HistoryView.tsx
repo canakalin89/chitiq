@@ -37,16 +37,16 @@ const HistoryView: React.FC<HistoryViewProps> = ({
   })();
 
   return (
-    <div className="space-y-6 animate-fade-in pb-20">
-      <div className="flex items-center justify-between bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm sticky top-24 z-30">
-        <div className="flex items-center gap-4">
+    <div className="space-y-4 animate-fade-in pb-20">
+      <div className="flex items-center justify-between bg-white dark:bg-[#212121] px-4 py-3 rounded-xl border border-[#e9e9e7] dark:border-[#2e2e2e] sticky top-[3.75rem] z-30">
+        <div className="flex items-center gap-3">
             <button
               onClick={onBack}
-              className="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-[#f7f7f5] dark:hover:bg-[#2e2e2e] transition-colors"
             >
-              <BackIcon className="w-6 h-6" />
+              <BackIcon className="w-5 h-5" />
             </button>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{t('history.title')}</h1>
+            <h1 className="text-base font-semibold text-slate-800 dark:text-white">{t('history.title')}</h1>
         </div>
         {history.length > 0 && (
           <div className="relative">
@@ -88,28 +88,28 @@ const HistoryView: React.FC<HistoryViewProps> = ({
       {history.length >= 2 && (
         <>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-4">
-              <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">En Yüksek</p>
-              <p className={`text-2xl font-black ${bestScore !== null && bestScore >= 80 ? 'text-emerald-600' : bestScore !== null && bestScore >= 60 ? 'text-amber-500' : 'text-rose-500'}`}>
+            <div className="card p-4">
+              <p className="text-xs font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">En Yüksek</p>
+              <p className={`text-2xl font-bold ${bestScore !== null && bestScore >= 80 ? 'text-emerald-600' : bestScore !== null && bestScore >= 60 ? 'text-amber-500' : 'text-rose-500'}`}>
                 {bestScore ?? '—'}
               </p>
             </div>
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-4">
-              <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">Ortalama</p>
-              <p className={`text-2xl font-black ${avgScore !== null && avgScore >= 80 ? 'text-emerald-600' : avgScore !== null && avgScore >= 60 ? 'text-amber-500' : 'text-rose-500'}`}>
+            <div className="card p-4">
+              <p className="text-xs font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Ortalama</p>
+              <p className={`text-2xl font-bold ${avgScore !== null && avgScore >= 80 ? 'text-emerald-600' : avgScore !== null && avgScore >= 60 ? 'text-amber-500' : 'text-rose-500'}`}>
                 {avgScore ?? '—'}
               </p>
             </div>
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-4">
-              <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">Toplam</p>
-              <p className="text-2xl font-black text-indigo-600 dark:text-indigo-400">{history.length}</p>
+            <div className="card p-4">
+              <p className="text-xs font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Toplam</p>
+              <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{history.length}</p>
             </div>
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-4">
-              <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">Son 7 Gün</p>
+            <div className="card p-4">
+              <p className="text-xs font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Son 7 Gün</p>
               <div className="flex items-baseline gap-1.5">
-                <p className="text-2xl font-black text-slate-800 dark:text-white">{recentCount}</p>
+                <p className="text-2xl font-bold text-slate-800 dark:text-white">{recentCount}</p>
                 {recentAvg !== null && (
-                  <span className={`text-xs font-bold ${recentAvg > 0 ? 'text-emerald-600' : 'text-rose-500'}`}>
+                  <span className={`text-xs font-semibold ${recentAvg > 0 ? 'text-emerald-600' : 'text-rose-500'}`}>
                     {recentAvg > 0 ? `↑` : `↓`}{Math.abs(Math.round(recentAvg))} pt
                   </span>
                 )}
@@ -121,8 +121,8 @@ const HistoryView: React.FC<HistoryViewProps> = ({
       )}
 
       {history.length === 0 ? (
-        <div className="text-center py-24 bg-white/50 dark:bg-slate-900/50 rounded-3xl border border-dashed border-slate-300 dark:border-slate-700 backdrop-blur-sm">
-          <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+        <div className="text-center py-20 rounded-xl border border-dashed border-[#e9e9e7] dark:border-[#2e2e2e] bg-white dark:bg-[#212121]">
+          <div className="w-14 h-14 bg-[#f7f7f5] dark:bg-[#2e2e2e] rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
              </svg>
@@ -211,9 +211,9 @@ const SwipeableHistoryItem: React.FC<SwipeableHistoryItemProps> = ({ item, onSel
   };
 
   return (
-    <div className="relative h-24 w-full select-none overflow-hidden rounded-2xl group">
+    <div className="relative h-20 w-full select-none overflow-hidden rounded-xl group">
       {/* Background (Delete Action) */}
-      <div className="absolute inset-y-0 right-0 w-full bg-rose-500 rounded-2xl flex items-center justify-end pr-8">
+      <div className="absolute inset-y-0 right-0 w-full bg-rose-500 rounded-xl flex items-center justify-end pr-8">
         <button 
           onClick={() => onDelete(item.id)}
           className="flex items-center gap-2 text-white font-bold"
@@ -226,7 +226,7 @@ const SwipeableHistoryItem: React.FC<SwipeableHistoryItemProps> = ({ item, onSel
 
       {/* Foreground (Content) */}
       <div 
-        className="relative h-full w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl flex items-center shadow-sm cursor-pointer z-10"
+        className="relative h-full w-full bg-white dark:bg-[#212121] border border-[#e9e9e7] dark:border-[#2e2e2e] rounded-xl flex items-center cursor-pointer z-10 hover:border-indigo-200 dark:hover:border-indigo-800 transition-colors"
         style={{ 
           transform: `translateX(${offset}px)`,
           transition: isSwiping ? 'none' : 'transform 0.3s ease-out',
@@ -240,16 +240,16 @@ const SwipeableHistoryItem: React.FC<SwipeableHistoryItemProps> = ({ item, onSel
             else resetSwipe(); // Close on click if open
         }}
       >
-        <div className="flex-1 px-5 flex items-center gap-4 overflow-hidden">
-            <div className={`flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-xl font-bold text-lg border ${getScoreColorClass(item.overallScore)}`}>
+        <div className="flex-1 px-4 flex items-center gap-3 overflow-hidden">
+            <div className={`flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-lg font-bold text-sm border ${getScoreColorClass(item.overallScore)}`}>
               {item.overallScore}
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 truncate">
+              <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">
                 {item.topic}
               </h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                {new Date(item.date).toLocaleDateString()} • {new Date(item.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+              <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+                {new Date(item.date).toLocaleDateString()} · {new Date(item.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
               </p>
             </div>
         </div>
@@ -261,16 +261,16 @@ const SwipeableHistoryItem: React.FC<SwipeableHistoryItemProps> = ({ item, onSel
            </svg>
         </div>
 
-        {/* Desktop-only delete button (Hover) */}
-        <div className="hidden sm:flex absolute right-2 inset-y-2 pl-4 bg-gradient-to-l from-white via-white to-transparent dark:from-slate-900 dark:via-slate-900 opacity-0 group-hover:opacity-100 transition-opacity items-center">
+        {/* Desktop delete button (hover) */}
+        <div className="hidden sm:flex absolute right-2 inset-y-2 pl-6 bg-gradient-to-l from-white via-white to-transparent dark:from-[#212121] dark:via-[#212121] opacity-0 group-hover:opacity-100 transition-opacity items-center">
             <button
                 onClick={(e) => {
                     e.stopPropagation();
                     if(window.confirm(t('common.confirmDelete'))) onDelete(item.id);
                 }}
-                className="p-2 bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-600 rounded-lg transition-colors border border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-rose-900/30 dark:text-slate-400 dark:hover:text-rose-400"
+                className="p-1.5 bg-[#f7f7f5] hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-lg transition-colors border border-[#e9e9e7] dark:border-[#2e2e2e] dark:bg-[#2e2e2e] dark:hover:bg-rose-900/30 dark:text-slate-500 dark:hover:text-rose-400"
             >
-                <TrashIcon className="w-5 h-5" />
+                <TrashIcon className="w-4 h-4" />
             </button>
         </div>
       </div>
