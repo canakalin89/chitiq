@@ -15,7 +15,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-native-audio-preview-09-2025",
+      model: "gemini-2.0-flash",
       contents: {
         parts: [
           { inlineData: { mimeType, data: audioBase64 } },
