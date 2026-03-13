@@ -42,17 +42,17 @@ const evaluationSchema = {
     scores: {
       type: Type.OBJECT,
       properties: {
-        rapport: { type: Type.NUMBER, description: "Social presence, confidence, and interactional flow (0-100)." },
-        organisation: { type: Type.NUMBER, description: "Structure, coherence, and use of transition words (0-100)." },
-        delivery: { type: Type.NUMBER, description: "Fluency, intonation, and clarity of speech (0-100)." },
-        languageUse: { type: Type.NUMBER, description: "Grammatical accuracy and lexical variety (0-100)." },
-        creativity: { type: Type.NUMBER, description: "Complexity of ideas and unique expression (0-100)." },
+        rapport: { type: Type.NUMBER, description: "Social presence, confidence, and interactional flow (0-20)." },
+        organisation: { type: Type.NUMBER, description: "Structure, coherence, and use of transition words (0-20)." },
+        delivery: { type: Type.NUMBER, description: "Fluency, intonation, and clarity of speech (0-20)." },
+        languageUse: { type: Type.NUMBER, description: "Grammatical accuracy and lexical variety (0-20)." },
+        creativity: { type: Type.NUMBER, description: "Complexity of ideas and unique expression (0-20)." },
       },
       required: ["rapport", "organisation", "delivery", "languageUse", "creativity"],
     },
     overallScore: {
       type: Type.NUMBER,
-      description: "Weighted average score (0-100).",
+      description: "The exact sum of all 5 criteria scores (rapport + organisation + delivery + languageUse + creativity). Maximum is 100.",
     },
     feedback: {
       type: Type.OBJECT,
@@ -118,7 +118,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   **MANDATORY FEEDBACK RULES**:
   - Summarize the performance professionally but supportively in ${targetLanguage}.
   - In "pronunciation" feedback, provide specific examples of words mispronounced using IPA (International Phonetic Alphabet) e.g., 'Target: /wɔːtər/, Said: /vater/'.
-  - Be precise with the "overallScore"; 100 is reserved for native-like excellence.
+  - Score each criterion out of 20 (not 100). The "overallScore" MUST be the arithmetic sum of all 5 criteria (max 100).
+  - 20/20 per criterion is reserved for native-like excellence.
   - The "transcription" MUST be verbatim in English. If the user said filler words like 'um', 'uh', include them as they are vital for fluency analysis.
 
   Return results strictly in the specified JSON format.`;

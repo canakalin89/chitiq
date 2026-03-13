@@ -256,7 +256,7 @@ const Recorder: React.FC<RecorderProps> = ({ onStop, onCancel, topic }) => {
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 text-center italic">"{topic}"</p>
 
-          <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 min-h-[120px] border-2 border-slate-100 dark:border-slate-700">
+          <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 min-h-[120px] max-h-[220px] overflow-y-auto border-2 border-slate-100 dark:border-slate-700">
             <p className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-3">{t('evaluation.transcription')}</p>
             <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
               {transcription || <span className="text-slate-400 italic">{t('errors.noSpeechDetected')}</span>}
